@@ -22,7 +22,11 @@ const MIN_COL: i8 = 1;
 const MAX_COL: i8 = 60;
 const MIN_ROW: i8 = 1;
 const MAX_ROW: i8 = 30;
-pub const OOB_HEX: Hex = Hex { col: 0, row: 0, _private: () };
+const OOB_HEX: Hex = Hex { col: 0, row: 0, _private: () };
+const DIRECTIONS: [[[i8; 2]; 6]; 2] = [
+    [[0,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0]],
+    [[0,-1], [1,-1], [1,0], [0,1], [-1,0], [-1,-1]]
+];
 
 impl Hex {
     pub fn new(col: i8, row: i8) -> Hex {
@@ -37,12 +41,11 @@ impl Hex {
     }
 
     pub fn neighbor(&self, d: Direction) -> Hex {
-        let directions = [
-            [[0,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0]],
-            [[0,-1], [1,-1], [1,0], [0,1], [-1,0], [-1,-1]]
-        ];
+        if self.is_oob() {
+            return OOB_HEX;
+        }
         let parity = (self.col & 1) as usize;
-        let dir = directions[parity][d as usize];
+        let dir = DIRECTIONS[parity][d as usize];
         return Hex::new((self.col + dir[0]) as i8, (self.row + dir[1]) as i8);
     }
 
@@ -68,6 +71,11 @@ mod tests {
 
         let h6030 = Hex::new(60, 30);
         assert_eq!(h6030.number(), 6030);
+    }
+
+    #[test]
+    fn oob_neighbor_is_oob() {
+        assert!(OOB_HEX.neighbor(Direction::A).is_oob());
     }
 
     #[test]
