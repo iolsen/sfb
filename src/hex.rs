@@ -1,11 +1,5 @@
 // https://www.redblobgames.com/grids/hexagons
 // The game map uses offset coordinates in an "even-q" layout.
-pub struct Hex {
-    pub col: i8,
-    pub row: i8,
-
-    _private: ()
-}
 
 /* The directions printed at the bottom left of the map.
  * A is straight up, clockwise from there */
@@ -27,6 +21,20 @@ const DIRECTIONS: [[[i8; 2]; 6]; 2] = [
     [[0,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0]],
     [[0,-1], [1,-1], [1,0], [0,1], [-1,0], [-1,-1]]
 ];
+
+#[derive(Eq, Debug)]
+pub struct Hex {
+    pub col: i8,
+    pub row: i8,
+
+    _private: ()
+}
+
+impl PartialEq for Hex {
+    fn eq(&self, other: &Self) -> bool {
+        return self.col == other.col && self.row == other.row;
+    }
+}
 
 impl Hex {
     pub fn new(col: i8, row: i8) -> Hex {
@@ -86,9 +94,9 @@ mod tests {
         let n = h.neighbor(Direction::B);
         assert!(n.is_oob());
         let n = h.neighbor(Direction::C);
-        assert_eq!(n.number(), Hex::new(MIN_COL+1, MIN_ROW).number());
+        assert_eq!(n, Hex::new(MIN_COL+1, MIN_ROW));
         let n = h.neighbor(Direction::D);
-        assert_eq!(n.number(), Hex::new(MIN_COL, MIN_ROW+1).number());
+        assert_eq!(n, Hex::new(MIN_COL, MIN_ROW+1));
         let n = h.neighbor(Direction::E);
         assert!(n.is_oob());
         let n = h.neighbor(Direction::F);
@@ -99,7 +107,7 @@ mod tests {
     fn lower_right_boundary_neighbors() {
         let h = Hex::new(MAX_COL, MAX_ROW);
         let n = h.neighbor(Direction::A);
-        assert_eq!(n.number(), Hex::new(MAX_COL, MAX_ROW-1).number());
+        assert_eq!(n, Hex::new(MAX_COL, MAX_ROW-1));
         let n = h.neighbor(Direction::B);
         assert!(n.is_oob());
         let n = h.neighbor(Direction::C);
@@ -109,7 +117,7 @@ mod tests {
         let n = h.neighbor(Direction::E);
         assert!(n.is_oob());
         let n = h.neighbor(Direction::F);
-        assert_eq!(n.number(), Hex::new(MAX_COL-1, MAX_ROW).number());
+        assert_eq!(n, Hex::new(MAX_COL-1, MAX_ROW));
     }
 }
 
