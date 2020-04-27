@@ -52,8 +52,9 @@ impl Hex {
         Hex { col, row, _private: () }
     }
 
-    pub fn number(&self) -> i16 {
-        return self.col as i16 * 100 + self.row as i16;
+    pub fn number(&self) -> String {
+        let n = self.col as i16 * 100 + self.row as i16;
+        return format!{"{:04}", n}
     }
 
     pub fn neighbor(&self, f: Facing) -> Hex {
@@ -83,10 +84,12 @@ mod tests {
     #[test]
     fn number_bounds() {
         let h0101 = Hex::new(1, 1);
-        assert_eq!(h0101.number(), 101);
+        assert_eq!(h0101.number(), "0101");
 
         let h6030 = Hex::new(60, 30);
-        assert_eq!(h6030.number(), 6030);
+        assert_eq!(h6030.number(), "6030");
+
+        assert_eq!(OOB_HEX.number(), "0000");
     }
 
     #[test]
