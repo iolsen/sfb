@@ -1,13 +1,19 @@
 // https://www.redblobgames.com/grids/hexagons
 // The game map uses offset coordinates in an "even-q" layout.
 
-/* The directions printed at the bottom left of the map.
- * A is straight up, clockwise from there */
-pub enum Direction {
-    A, // up
+/* The hex facing printed at the bottom left of the map.
+ * A is straight up, clockwise from there
+ *
+ *    A
+ *  F   B
+ *  E   C
+ *    D
+ */
+pub enum Facing {
+    A,
     B,
     C,
-    D, // down
+    D,
     E,
     F
 }
@@ -16,7 +22,9 @@ const MIN_COL: i8 = 1;
 const MAX_COL: i8 = 60;
 const MIN_ROW: i8 = 1;
 const MAX_ROW: i8 = 30;
+
 const OOB_HEX: Hex = Hex { col: 0, row: 0, _private: () };
+
 const DIRECTIONS: [[[i8; 2]; 6]; 2] = [
     [[0,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0]],
     [[0,-1], [1,-1], [1,0], [0,1], [-1,0], [-1,-1]]
@@ -48,12 +56,12 @@ impl Hex {
         return self.col as i16 * 100 + self.row as i16;
     }
 
-    pub fn neighbor(&self, d: Direction) -> Hex {
+    pub fn neighbor(&self, f: Facing) -> Hex {
         if self.is_oob() {
             return OOB_HEX;
         }
         let parity = (self.col & 1) as usize;
-        let dir = DIRECTIONS[parity][d as usize];
+        let dir = DIRECTIONS[parity][f as usize];
         return Hex::new((self.col + dir[0]) as i8, (self.row + dir[1]) as i8);
     }
 
@@ -83,40 +91,40 @@ mod tests {
 
     #[test]
     fn oob_neighbor_is_oob() {
-        assert!(OOB_HEX.neighbor(Direction::A).is_oob());
+        assert!(OOB_HEX.neighbor(Facing::A).is_oob());
     }
 
     #[test]
     fn upper_left_boundary_neighbors() {
         let h = Hex::new(MIN_COL, MIN_ROW);
-        let n = h.neighbor(Direction::A);
+        let n = h.neighbor(Facing::A);
         assert!(n.is_oob());
-        let n = h.neighbor(Direction::B);
+        let n = h.neighbor(Facing::B);
         assert!(n.is_oob());
-        let n = h.neighbor(Direction::C);
+        let n = h.neighbor(Facing::C);
         assert_eq!(n, Hex::new(MIN_COL+1, MIN_ROW));
-        let n = h.neighbor(Direction::D);
+        let n = h.neighbor(Facing::D);
         assert_eq!(n, Hex::new(MIN_COL, MIN_ROW+1));
-        let n = h.neighbor(Direction::E);
+        let n = h.neighbor(Facing::E);
         assert!(n.is_oob());
-        let n = h.neighbor(Direction::F);
+        let n = h.neighbor(Facing::F);
         assert!(n.is_oob());
     }
 
     #[test]
     fn lower_right_boundary_neighbors() {
         let h = Hex::new(MAX_COL, MAX_ROW);
-        let n = h.neighbor(Direction::A);
+        let n = h.neighbor(Facing::A);
         assert_eq!(n, Hex::new(MAX_COL, MAX_ROW-1));
-        let n = h.neighbor(Direction::B);
+        let n = h.neighbor(Facing::B);
         assert!(n.is_oob());
-        let n = h.neighbor(Direction::C);
+        let n = h.neighbor(Facing::C);
         assert!(n.is_oob());
-        let n = h.neighbor(Direction::D);
+        let n = h.neighbor(Facing::D);
         assert!(n.is_oob());
-        let n = h.neighbor(Direction::E);
+        let n = h.neighbor(Facing::E);
         assert!(n.is_oob());
-        let n = h.neighbor(Direction::F);
+        let n = h.neighbor(Facing::F);
         assert_eq!(n, Hex::new(MAX_COL-1, MAX_ROW));
     }
 }
