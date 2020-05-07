@@ -72,7 +72,7 @@ impl Hex {
         return Hex::new((self.col + dir[0]) as i8, (self.row + dir[1]) as i8);
     }
 
-    pub fn distance_to(&self, other: Hex) -> u8 {
+    pub fn distance_to(&self, other: Hex) -> i8 {
         return Hex::cubic_distance(self.to_cube(), other.to_cube());
     }
 
@@ -97,12 +97,8 @@ impl Hex {
         Hex::new(cube.x, cube.z + (cube.x + (cube.x & 1)) / 2)
     }
 
-    fn cubic_distance(a: Cube, b: Cube) -> u8 {
-        let vals = vec![(a.x - b.x).abs() as u8, (a.y - b.y).abs() as u8, (a.z - b.z).abs() as u8];
-        match vals.iter().max() {
-            None => return 0,
-            Some(u) => return *u
-        }
+    fn cubic_distance(a: Cube, b: Cube) -> i8 {
+        return ((a.x - b.x).abs() + (a.y - b.y).abs() + (a.z - b.z).abs()) / 2;
     }
 }
 
