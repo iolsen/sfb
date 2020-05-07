@@ -44,6 +44,12 @@ impl PartialEq for Hex {
     }
 }
 
+struct Cube {
+    x: i8,
+    y: i8,
+    z: i8
+}
+
 impl Hex {
     pub fn new(col: i8, row: i8) -> Hex {
         if col < MIN_COL || col > MAX_COL || row < MIN_ROW || row > MAX_ROW {
@@ -66,6 +72,10 @@ impl Hex {
         return Hex::new((self.col + dir[0]) as i8, (self.row + dir[1]) as i8);
     }
 
+    pub fn distance_to(&self, other: Hex) -> u8 {
+        return Hex::cubic_distance(self.to_cube(), other.to_cube());
+    }
+
     fn is_oob(&self) -> bool {
         if self.col < MIN_COL || self.row < MIN_ROW {
             return true;
@@ -74,6 +84,25 @@ impl Hex {
             return true;
         }
         return self.row > MAX_ROW;
+    }
+
+    fn to_cube(&self) -> Cube {
+        let x = self.col;
+        let z = self.row - (self.col + (self.row & 1)) / 2;
+        let y = -x-z;
+        return Cube {x, y, z}
+    }
+
+    fn _from_cube(cube: Cube) -> Hex {
+        Hex::new(cube.x, cube.z + (cube.x + (cube.x & 1)) / 2)
+    }
+
+    fn cubic_distance(a: Cube, b: Cube) -> u8 {
+        let vals = vec![(a.x - b.x).abs() as u8, (a.y - b.y).abs() as u8, (a.z - b.z).abs() as u8];
+        match vals.iter().max() {
+            None => return 0,
+            Some(u) => return *u
+        }
     }
 }
 
@@ -130,6 +159,14 @@ mod tests {
         let n = h.neighbor(Facing::F);
         assert_eq!(n, Hex::new(MAX_COL-1, MAX_ROW));
     }
+
+    #[test]
+    fn distance_sanity() {
+        let a = Hex::new(1, 1);
+        let b = Hex::new(1, 10);
+        assert_eq!(10, a.distance_to(b));
+
+        let c = Hex::new(10, 1);
+        assert_eq!(9, a.distance_to(c));
+    }
 }
-
-
