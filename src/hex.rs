@@ -88,7 +88,7 @@ impl Hex {
 
     fn to_cube(&self) -> Cube {
         let x = self.col;
-        let z = self.row - (self.col + (self.row & 1)) / 2;
+        let z = self.row - (self.col + (self.col & 1)) / 2;
         let y = -x-z;
         return Cube {x, y, z}
     }
@@ -162,11 +162,10 @@ mod tests {
 
     #[test]
     fn distance_sanity() {
-        let a = Hex::new(1, 1);
-        let b = Hex::new(1, 10);
-        assert_eq!(10, a.distance_to(b));
-
-        let c = Hex::new(10, 1);
-        assert_eq!(9, a.distance_to(c));
+        assert_eq!(0, Hex::new(1, 1).distance_to(Hex::new(1, 1)));
+        assert_eq!(1, Hex::new(1, 1).distance_to(Hex::new(2, 1)));
+        assert_eq!(1, Hex::new(1, 1).distance_to(Hex::new(1, 2)));
+        assert_eq!(9, Hex::new(1, 1).distance_to(Hex::new(1, 10)));
+        assert_eq!(9, Hex::new(1, 1).distance_to(Hex::new(10, 1)));
     }
 }
