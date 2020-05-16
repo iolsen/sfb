@@ -23,8 +23,6 @@ const MAX_COL: i8 = 60;
 const MIN_ROW: i8 = 1;
 const MAX_ROW: i8 = 30;
 
-const OOB_HEX: Hex = Hex { col: 0, row: 0, _private: () };
-
 const DIRECTIONS: [[[i8; 2]; 6]; 2] = [
     [[0,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0]],
     [[0,-1], [1,-1], [1,0], [0,1], [-1,0], [-1,-1]]
@@ -51,11 +49,11 @@ struct Cube {
 }
 
 impl Hex {
-    pub fn new(col: i8, row: i8) -> Hex {
+    pub fn new(col: i8, row: i8) -> Option<Hex> {
         if col < MIN_COL || col > MAX_COL || row < MIN_ROW || row > MAX_ROW {
-            return OOB_HEX;
+            return None;
         }
-        Hex { col, row, _private: () }
+        Some(Hex { col, row, _private: () })
     }
 
     pub fn number(&self) -> String {
@@ -63,27 +61,14 @@ impl Hex {
         return format!{"{:04}", n}
     }
 
-    pub fn neighbor(&self, f: Facing) -> Hex {
-        if self.is_oob() {
-            return OOB_HEX;
-        }
+    pub fn neighbor(&self, f: Facing) -> Option<Hex> {
         let parity = (self.col & 1) as usize;
         let dir = DIRECTIONS[parity][f as usize];
-        return Hex::new((self.col + dir[0]) as i8, (self.row + dir[1]) as i8);
+        Hex::new((self.col + dir[0]) as i8, (self.row + dir[1]) as i8)
     }
 
-    pub fn distance_to(&self, other: Hex) -> i8 {
+    pub fn distance_to(&self, other: &Hex) -> i8 {
         return Hex::cubic_distance(self.to_cube(), other.to_cube());
-    }
-
-    fn is_oob(&self) -> bool {
-        if self.col < MIN_COL || self.row < MIN_ROW {
-            return true;
-        }
-        if self.col > MAX_COL {
-            return true;
-        }
-        return self.row > MAX_ROW;
     }
 
     fn to_cube(&self) -> Cube {
@@ -93,7 +78,7 @@ impl Hex {
         return Cube {x, y, z}
     }
 
-    fn _from_cube(cube: Cube) -> Hex {
+    fn _from_cube(cube: Cube) -> Option<Hex> {
         Hex::new(cube.x, cube.z + (cube.x + (cube.x & 1)) / 2)
     }
 
@@ -109,59 +94,61 @@ mod tests {
     #[test]
     fn number_bounds() {
         let h0101 = Hex::new(1, 1);
-        assert_eq!(h0101.number(), "0101");
+        match h0101 {
+            Some(h) => assert_eq!(h.number(), "0101"),
+            None => assert!(false)
+        }
 
         let h6030 = Hex::new(60, 30);
-        assert_eq!(h6030.number(), "6030");
-
-        assert_eq!(OOB_HEX.number(), "0000");
-    }
-
-    #[test]
-    fn oob_neighbor_is_oob() {
-        assert!(OOB_HEX.neighbor(Facing::A).is_oob());
+        match h6030 {
+            Some(h) => assert_eq!(h.number(), "6030"),
+            None => assert!(false)
+        }
     }
 
     #[test]
     fn upper_left_boundary_neighbors() {
-        let h = Hex::new(MIN_COL, MIN_ROW);
-        let n = h.neighbor(Facing::A);
-        assert!(n.is_oob());
-        let n = h.neighbor(Facing::B);
-        assert!(n.is_oob());
-        let n = h.neighbor(Facing::C);
-        assert_eq!(n, Hex::new(MIN_COL+1, MIN_ROW));
-        let n = h.neighbor(Facing::D);
-        assert_eq!(n, Hex::new(MIN_COL, MIN_ROW+1));
-        let n = h.neighbor(Facing::E);
-        assert!(n.is_oob());
-        let n = h.neighbor(Facing::F);
-        assert!(n.is_oob());
+        if let Some(h) = Hex::new(MIN_COL, MIN_ROW) {
+            assert!(h.neighbor(Facing::A).is_none());
+            assert!(h.neighbor(Facing::B).is_none());
+            assert_eq!(h.neighbor(Facing::C), Hex::new(MIN_COL+1, MIN_ROW));
+            assert_eq!(h.neighbor(Facing::D), Hex::new(MIN_COL, MIN_ROW+1));
+            assert!(h.neighbor(Facing::E).is_none());
+            assert!(h.neighbor(Facing::F).is_none());
+        }
+        else { assert!(false) }
     }
 
     #[test]
     fn lower_right_boundary_neighbors() {
-        let h = Hex::new(MAX_COL, MAX_ROW);
-        let n = h.neighbor(Facing::A);
-        assert_eq!(n, Hex::new(MAX_COL, MAX_ROW-1));
-        let n = h.neighbor(Facing::B);
-        assert!(n.is_oob());
-        let n = h.neighbor(Facing::C);
-        assert!(n.is_oob());
-        let n = h.neighbor(Facing::D);
-        assert!(n.is_oob());
-        let n = h.neighbor(Facing::E);
-        assert!(n.is_oob());
-        let n = h.neighbor(Facing::F);
-        assert_eq!(n, Hex::new(MAX_COL-1, MAX_ROW));
+        if let Some(h) = Hex::new(MAX_COL, MAX_ROW) {
+            assert_eq!(h.neighbor(Facing::A), Hex::new(MAX_COL, MAX_ROW-1));
+            assert!(h.neighbor(Facing::B).is_none());
+            assert!(h.neighbor(Facing::C).is_none());
+            assert!(h.neighbor(Facing::D).is_none());
+            assert!(h.neighbor(Facing::E).is_none());
+            assert_eq!(h.neighbor(Facing::F), Hex::new(MAX_COL-1, MAX_ROW));
+        }
+        else { assert!(false) }
     }
 
     #[test]
     fn distance_sanity() {
-        assert_eq!(0, Hex::new(1, 1).distance_to(Hex::new(1, 1)));
-        assert_eq!(1, Hex::new(1, 1).distance_to(Hex::new(2, 1)));
-        assert_eq!(1, Hex::new(1, 1).distance_to(Hex::new(1, 2)));
-        assert_eq!(9, Hex::new(1, 1).distance_to(Hex::new(1, 10)));
-        assert_eq!(9, Hex::new(1, 1).distance_to(Hex::new(10, 1)));
+        if let Some(h) = Hex::new(1, 1) {
+            assert_eq!(0, h.distance_to(&h));
+
+            if let Some(h2) = Hex::new(2, 1) { assert_eq!(1, h.distance_to(&h2)) }
+            else { assert!(false) }
+
+            if let Some(h2) = Hex::new(1, 2) { assert_eq!(1, h.distance_to(&h2)) }
+            else { assert!(false) }
+
+            if let Some(h2) = Hex::new(1, 10) { assert_eq!(9, h.distance_to(&h2)) }
+            else { assert!(false) }
+
+            if let Some(h2) = Hex::new(10, 1) { assert_eq!(9, h.distance_to(&h2)) }
+            else { assert!(false) }
+        }
+        else { assert!(false) }
     }
 }

@@ -1,5 +1,8 @@
 TODO
 
+`rusty-tags vi`
+
+https://www.redblobgames.com/grids/hexagons/
+
 - hex map
-  - 60x30
-  - https://www.redblobgames.com/grids/hexagons/
+  - determine shield facing
