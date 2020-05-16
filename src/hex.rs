@@ -1,6 +1,8 @@
 // https://www.redblobgames.com/grids/hexagons
 // The game map uses offset coordinates in an "even-q" layout.
 
+use std::fmt;
+
 /* The hex facing printed at the bottom left of the map.
  * A is straight up, clockwise from there
  *
@@ -48,6 +50,12 @@ struct Cube {
     z: i8
 }
 
+impl fmt::Display for Hex {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:04}", self.number())
+    }
+}
+
 impl Hex {
     pub fn new(col: i8, row: i8) -> Option<Hex> {
         if col < MIN_COL || col > MAX_COL || row < MIN_ROW || row > MAX_ROW {
@@ -56,9 +64,8 @@ impl Hex {
         Some(Hex { col, row, _private: () })
     }
 
-    pub fn number(&self) -> String {
-        let n = self.col as i16 * 100 + self.row as i16;
-        return format!{"{:04}", n}
+    pub fn number(&self) -> i16 {
+        self.col as i16 * 100 + self.row as i16
     }
 
     pub fn neighbor(&self, f: Facing) -> Option<Hex> {
@@ -95,13 +102,28 @@ mod tests {
     fn number_bounds() {
         let h0101 = Hex::new(1, 1);
         match h0101 {
-            Some(h) => assert_eq!(h.number(), "0101"),
+            Some(h) => assert_eq!("0101", format!("{}", h)),
             None => assert!(false)
         }
 
         let h6030 = Hex::new(60, 30);
         match h6030 {
-            Some(h) => assert_eq!(h.number(), "6030"),
+            Some(h) => assert_eq!("6030", format!("{}", h)),
+            None => assert!(false)
+        }
+    }
+
+    #[test]
+    fn display_formatter() {
+        let h0101 = Hex::new(1, 1);
+        match h0101 {
+            Some(h) => assert_eq!(h.number(), 101),
+            None => assert!(false)
+        }
+
+        let h6030 = Hex::new(60, 30);
+        match h6030 {
+            Some(h) => assert_eq!(h.number(), 6030),
             None => assert!(false)
         }
     }
