@@ -240,6 +240,11 @@ mod tests {
             if let Some(h2) = Hex::new(39, 2) { assert_eq!(Facing::F, h.shield_facing_from(&h2)) }
             else { assert!(false) }
 
+            if let Some(h2) = Hex::new(38, 2) { assert_eq!(Facing::F, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+            if let Some(h2) = Hex::new(42, 2) { assert_eq!(Facing::B, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+
             if let Some(h2) = Hex::new(39, 7) { assert_eq!(Facing::D, h.shield_facing_from(&h2)) }
             else { assert!(false) }
         }
