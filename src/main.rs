@@ -33,7 +33,7 @@ fn get_sizes(window_height: f32) -> Sizes {
 }
 
 struct State {
-    sizes: Sizes
+    map_mesh: graphics::Mesh
 }
 
 fn hex_vertex(center: Point2<f32>, size: f32, i: usize) -> Point2<f32> {
@@ -53,6 +53,32 @@ fn hex_points(center: Point2<f32>, size: f32) -> [Point2<f32>; 6] {
     ]
 }
 
+fn build_hex_map_mesh(ctx: &mut Context, sizes: &Sizes) -> GameResult<graphics::Mesh> {
+    let builder = &mut graphics::MeshBuilder::new();
+
+    for col in 0..60 {
+        let x = sizes.start_point.x + sizes.vector.x * col as f32;
+        for row in 0..30 {
+            let y = if col % 2 == 0 {
+                // even row
+                sizes.start_point.y + sizes.hex_height * row as f32
+            } else {
+                // odd row
+                sizes.start_point.y + sizes.vector.y + sizes.hex_height * row as f32
+            };
+            let center = Point2::new(x, y);
+            let points = hex_points(center, sizes.hex_edge);
+            builder.polygon(
+                graphics::DrawMode::stroke(1.0),
+                &points,
+                graphics::WHITE,
+                )?;
+        }
+    }
+
+    builder.build(ctx)
+}
+
 impl ggez::event::EventHandler for State {
     fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
         Ok(())
@@ -60,54 +86,26 @@ impl ggez::event::EventHandler for State {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, graphics::BLACK);
-
-
-        //let points = hex_points(start_point, hex_edge);
-        //let hex = graphics::Mesh::new_polygon(
-        //    ctx,
-        //    graphics::DrawMode::stroke(1.0),
-        //    &points,
-        //    graphics::WHITE,
-        //    )?;
-        //graphics::draw(ctx, &hex, graphics::DrawParam::default())?;
-
-        for col in 0..60 {
-            let x = self.sizes.start_point.x + self.sizes.vector.x * col as f32;
-            for row in 0..30 {
-                let y = if col % 2 == 0 {
-                    // even row
-                    self.sizes.start_point.y + self.sizes.hex_height * row as f32
-                } else {
-                    // odd row
-                    self.sizes.start_point.y + self.sizes.vector.y + self.sizes.hex_height * row as f32
-                };
-                let center = Point2::new(x, y);
-                let points = hex_points(center, self.sizes.hex_edge);
-                let hex = graphics::Mesh::new_polygon(
-                    ctx,
-                    graphics::DrawMode::stroke(1.0),
-                    &points,
-                    graphics::WHITE,
-                    )?;
-                graphics::draw(ctx, &hex, graphics::DrawParam::default())?;
-            }
-        }
+        graphics::draw(ctx, &self.map_mesh, graphics::DrawParam::default())?;
         graphics::present(ctx)?;
         Ok(())
     }
 }
 
 fn main() {
-    let state = &mut State { sizes: get_sizes(WINDOW_HEIGHT)};
+    let sizes = get_sizes(WINDOW_HEIGHT);
     let (ref mut ctx, ref mut event_loop) = ContextBuilder::new("sfbv1", "ian_olsen")
         .window_setup(WindowSetup::default().title("Star Fleet Battles Volume 1"))
         .window_mode(
             WindowMode::default()
-                .dimensions(state.sizes.window_width, state.sizes.window_height)
+                .dimensions(sizes.window_width, sizes.window_height)
                 .resizable(false)
         )
         .build()
         .unwrap();
+
+    let map_mesh = build_hex_map_mesh(ctx, &sizes).unwrap();
+    let state = &mut State { map_mesh: map_mesh };
 
     event::run(ctx, event_loop, state).unwrap();
 }
