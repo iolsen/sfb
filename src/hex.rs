@@ -11,6 +11,7 @@ use std::fmt;
  *  E   C
  *    D
  */
+#[derive(PartialEq, Eq, Debug)]
 pub enum Facing {
     A,
     B,
@@ -44,6 +45,7 @@ impl PartialEq for Hex {
     }
 }
 
+#[derive(PartialEq, Eq, Debug)]
 struct Cube {
     x: i8,
     y: i8,
@@ -76,6 +78,54 @@ impl Hex {
 
     pub fn distance_to(&self, other: &Hex) -> i8 {
         return Hex::cubic_distance(self.to_cube(), other.to_cube());
+    }
+
+    pub fn shield_facing_from(&self, other: &Hex) -> Facing {
+        let theta = self.angle_to(other);
+        if theta >= 60 && theta < 120 { return Facing::A }
+        if theta >= 0 && theta < 60 { return Facing::B }
+        if theta >= 300 && theta < 360 { return Facing::C }
+        if theta >= 240 && theta < 300 { return Facing::D }
+        if theta >= 180 && theta < 240 { return Facing::E }
+        Facing::F
+    }
+
+    fn angle_to(&self, other: &Hex) -> i16 {
+        let self_center = self.center_coords();
+        let other_center = other.center_coords();
+
+        let dx = other_center.0 - self_center.0;
+        let dy = self_center.1 - other_center.1;
+
+        if dx == 0_f64 {
+            if dy >= 0_f64 { return 90 }
+            return 270;
+        }
+        let t = (dy/dx).atan().to_degrees();
+        if t >= 0_f64 {
+            if dx > 0_f64 {
+                return (t + 0.5) as i16
+            } else {
+                return (t + 180_f64 + 0.5) as i16;
+            }
+        } else {
+            if dx > 0_f64 {
+                return (t + 360_f64 + 0.5) as i16;
+            } else {
+                return (t + 180_f64 + 0.5) as i16;
+            }
+        }
+    }
+
+    fn center_coords(&self) -> (f64, f64) {
+       let tx = self.number()/100;
+       let sqrt_3 = 3_f64.sqrt();
+       let x = 1_f64/(2_f64*sqrt_3) + (tx-1) as f64 * (sqrt_3/2_f64);
+
+       let ty = (self.number() % 100) as f64;
+       let y = ty - 0.5*(tx % 2) as f64;
+
+       (x, y)
     }
 
     fn to_cube(&self) -> Cube {
@@ -169,6 +219,28 @@ mod tests {
             else { assert!(false) }
 
             if let Some(h2) = Hex::new(10, 1) { assert_eq!(9, h.distance_to(&h2)) }
+            else { assert!(false) }
+        }
+        else { assert!(false) }
+    }
+
+    #[test]
+    fn shield_facing_from_sanity() {
+        if let Some(h) = Hex::new(40, 2) {
+            if let Some(h2) = Hex::new(40, 1) { assert_eq!(Facing::A, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+            if let Some(h2) = Hex::new(41, 2) { assert_eq!(Facing::B, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+            if let Some(h2) = Hex::new(41, 3) { assert_eq!(Facing::C, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+            if let Some(h2) = Hex::new(40, 3) { assert_eq!(Facing::D, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+            if let Some(h2) = Hex::new(39, 3) { assert_eq!(Facing::E, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+            if let Some(h2) = Hex::new(39, 2) { assert_eq!(Facing::F, h.shield_facing_from(&h2)) }
+            else { assert!(false) }
+
+            if let Some(h2) = Hex::new(39, 7) { assert_eq!(Facing::D, h.shield_facing_from(&h2)) }
             else { assert!(false) }
         }
         else { assert!(false) }
