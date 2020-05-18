@@ -1,7 +1,6 @@
 # TODO
 
 - hex
-  - shield facing: perfect 0/180 angles shoud return None
   - distance: number of hexes in between + 1. same hex is 0.
 - graphics
   - hex grid
