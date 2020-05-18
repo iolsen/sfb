@@ -1,6 +1,6 @@
-use ggez::*;
 use ggez::conf::{WindowMode, WindowSetup};
 use ggez::nalgebra::{Point2, Vector2};
+use ggez::*;
 // mod hex;
 
 const WINDOW_HEIGHT: f32 = 1000.0;
@@ -11,7 +11,7 @@ struct Sizes {
     window_height: f32,
     hex_height: f32,
     hex_edge: f32,
-    vector: Vector2<f32>
+    vector: Vector2<f32>,
 }
 fn get_sizes(window_height: f32) -> Sizes {
     let hex_height = window_height / 30.5;
@@ -28,18 +28,21 @@ fn get_sizes(window_height: f32) -> Sizes {
         window_height,
         hex_height,
         hex_edge,
-        vector
+        vector,
     }
 }
 
 struct State {
-    map_mesh: graphics::Mesh
+    map_mesh: graphics::Mesh,
 }
 
 fn hex_vertex(center: Point2<f32>, size: f32, i: usize) -> Point2<f32> {
     let angle_deg = (60 * i) as f32;
     let angle_rad = std::f32::consts::PI / 180.0 * angle_deg;
-    Point2::new(center.x + size * angle_rad.cos(), center.y + size * angle_rad.sin())
+    Point2::new(
+        center.x + size * angle_rad.cos(),
+        center.y + size * angle_rad.sin(),
+    )
 }
 
 fn hex_points(center: Point2<f32>, size: f32) -> [Point2<f32>; 6] {
@@ -49,7 +52,7 @@ fn hex_points(center: Point2<f32>, size: f32) -> [Point2<f32>; 6] {
         hex_vertex(center, size, 2),
         hex_vertex(center, size, 3),
         hex_vertex(center, size, 4),
-        hex_vertex(center, size, 5)
+        hex_vertex(center, size, 5),
     ]
 }
 
@@ -68,11 +71,7 @@ fn build_hex_map_mesh(ctx: &mut Context, sizes: &Sizes) -> GameResult<graphics::
             };
             let center = Point2::new(x, y);
             let points = hex_points(center, sizes.hex_edge);
-            builder.polygon(
-                graphics::DrawMode::stroke(1.0),
-                &points,
-                graphics::WHITE,
-                )?;
+            builder.polygon(graphics::DrawMode::stroke(1.0), &points, graphics::WHITE)?;
         }
     }
 
@@ -99,7 +98,7 @@ fn main() {
         .window_mode(
             WindowMode::default()
                 .dimensions(sizes.window_width, sizes.window_height)
-                .resizable(false)
+                .resizable(false),
         )
         .build()
         .unwrap();
