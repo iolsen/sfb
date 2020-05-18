@@ -1,10 +1,18 @@
 # TODO
 
-- graphics
-  - regular hex grid
 - hex
   - shield facing: perfect 0/180 angles shoud return None
   - distance: number of hexes in between + 1. same hex is 0.
+- graphics
+  - hex grid
+    - make it a tile map
+    - hex numbers
+    - scale better on resize
+    - zoom/pan
+  - imgui-rs PoC
+- other
+  - organize and clean up main.rs
+  - separate stuff into crates such that you could have a server between players
 
 # Resources
 
