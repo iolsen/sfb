@@ -1,7 +1,6 @@
 use ggez::conf::{WindowMode, WindowSetup};
 use ggez::nalgebra::{Point2, Vector2};
 use ggez::*;
-// mod hex;
 
 const WINDOW_HEIGHT: f32 = 1000.0;
 

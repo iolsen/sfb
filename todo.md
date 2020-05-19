@@ -3,6 +3,7 @@
 - hex
   - distance: number of hexes in between + 1. same hex is 0.
 - graphics
+  - make the default window size choice smarter
   - hex grid
     - make it a tile map
     - hex numbers
