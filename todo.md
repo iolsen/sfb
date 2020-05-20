@@ -3,6 +3,11 @@
 - hex
   - distance: number of hexes in between + 1. same hex is 0.
 - graphics
+  - drawing ships
+    - proper placement in hex
+    - rotate
+    - move
+    - multiple ship types, non-ships
   - make the default window size choice smarter
   - hex grid
     - make it a tile map
