@@ -26,6 +26,7 @@
 ## Graphics
 
 - https://github.com/hecrj/iced
+- http://shipschematics.net
 
 ## Other
 

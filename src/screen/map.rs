@@ -6,7 +6,7 @@ pub struct MapState {
     pub width: f32,
     pub height: f32,
     start_point: Point2<f32>,
-    hex_height: f32,
+    pub hex_height: f32,
     hex_edge: f32,
     vector: Vector2<f32>,
 }
