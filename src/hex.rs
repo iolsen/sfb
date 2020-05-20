@@ -18,7 +18,7 @@ pub enum Facing {
     C,
     D,
     E,
-    F
+    F,
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -43,8 +43,8 @@ const MIN_ROW: i8 = 1;
 const MAX_ROW: i8 = 30;
 
 const DIRECTIONS: [[[i8; 2]; 6]; 2] = [
-    [[0,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0]],
-    [[0,-1], [1,-1], [1,0], [0,1], [-1,0], [-1,-1]]
+    [[0, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]],
+    [[0, -1], [1, -1], [1, 0], [0, 1], [-1, 0], [-1, -1]],
 ];
 
 #[derive(Eq, Debug)]
@@ -52,7 +52,7 @@ pub struct Hex {
     pub col: i8,
     pub row: i8,
 
-    _private: ()
+    _private: (),
 }
 
 impl PartialEq for Hex {
@@ -65,7 +65,7 @@ impl PartialEq for Hex {
 struct Cube {
     x: i8,
     y: i8,
-    z: i8
+    z: i8,
 }
 
 impl fmt::Display for Hex {
@@ -79,7 +79,11 @@ impl Hex {
         if col < MIN_COL || col > MAX_COL || row < MIN_ROW || row > MAX_ROW {
             return None;
         }
-        Some(Hex { col, row, _private: () })
+        Some(Hex {
+            col,
+            row,
+            _private: (),
+        })
     }
 
     pub fn number(&self) -> i16 {
@@ -102,7 +106,7 @@ impl Hex {
             61..=119 => BearingTo::A,
             60 => BearingTo::AOrB,
             1..=59 => BearingTo::B,
-            0 =>  BearingTo::BOrC,
+            0 => BearingTo::BOrC,
             301..=359 => BearingTo::C,
             300 => BearingTo::COrD,
             241..=299 => BearingTo::D,
@@ -123,13 +127,15 @@ impl Hex {
         let dy = self_center.1 - other_center.1;
 
         if dx == 0_f64 {
-            if dy >= 0_f64 { return 90 }
+            if dy >= 0_f64 {
+                return 90;
+            }
             return 270;
         }
-        let t = (dy/dx).atan().to_degrees();
+        let t = (dy / dx).atan().to_degrees();
         if t >= 0_f64 {
             if dx > 0_f64 {
-                return (t + 0.5) as i16
+                return (t + 0.5) as i16;
             } else {
                 return (t + 180_f64 + 0.5) as i16;
             }
@@ -143,21 +149,21 @@ impl Hex {
     }
 
     fn center_coords(&self) -> (f64, f64) {
-       let tx = self.number()/100;
-       let sqrt_3 = 3_f64.sqrt();
-       let x = 1_f64/(2_f64*sqrt_3) + (tx-1) as f64 * (sqrt_3/2_f64);
+        let tx = self.number() / 100;
+        let sqrt_3 = 3_f64.sqrt();
+        let x = 1_f64 / (2_f64 * sqrt_3) + (tx - 1) as f64 * (sqrt_3 / 2_f64);
 
-       let ty = (self.number() % 100) as f64;
-       let y = ty - 0.5*(tx % 2) as f64;
+        let ty = (self.number() % 100) as f64;
+        let y = ty - 0.5 * (tx % 2) as f64;
 
-       (x, y)
+        (x, y)
     }
 
     fn to_cube(&self) -> Cube {
         let x = self.col;
         let z = self.row - (self.col + (self.col & 1)) / 2;
-        let y = -x-z;
-        return Cube {x, y, z}
+        let y = -x - z;
+        return Cube { x, y, z };
     }
 
     fn _from_cube(cube: Cube) -> Option<Hex> {
@@ -178,13 +184,13 @@ mod tests {
         let h0101 = Hex::new(1, 1);
         match h0101 {
             Some(h) => assert_eq!("0101", format!("{}", h)),
-            None => assert!(false)
+            None => assert!(false),
         }
 
         let h6030 = Hex::new(60, 30);
         match h6030 {
             Some(h) => assert_eq!("6030", format!("{}", h)),
-            None => assert!(false)
+            None => assert!(false),
         }
     }
 
@@ -193,13 +199,13 @@ mod tests {
         let h0101 = Hex::new(1, 1);
         match h0101 {
             Some(h) => assert_eq!(h.number(), 101),
-            None => assert!(false)
+            None => assert!(false),
         }
 
         let h6030 = Hex::new(60, 30);
         match h6030 {
             Some(h) => assert_eq!(h.number(), 6030),
-            None => assert!(false)
+            None => assert!(false),
         }
     }
 
@@ -208,25 +214,27 @@ mod tests {
         if let Some(h) = Hex::new(MIN_COL, MIN_ROW) {
             assert!(h.neighbor(Facing::A).is_none());
             assert!(h.neighbor(Facing::B).is_none());
-            assert_eq!(h.neighbor(Facing::C), Hex::new(MIN_COL+1, MIN_ROW));
-            assert_eq!(h.neighbor(Facing::D), Hex::new(MIN_COL, MIN_ROW+1));
+            assert_eq!(h.neighbor(Facing::C), Hex::new(MIN_COL + 1, MIN_ROW));
+            assert_eq!(h.neighbor(Facing::D), Hex::new(MIN_COL, MIN_ROW + 1));
             assert!(h.neighbor(Facing::E).is_none());
             assert!(h.neighbor(Facing::F).is_none());
+        } else {
+            assert!(false)
         }
-        else { assert!(false) }
     }
 
     #[test]
     fn lower_right_boundary_neighbors() {
         if let Some(h) = Hex::new(MAX_COL, MAX_ROW) {
-            assert_eq!(h.neighbor(Facing::A), Hex::new(MAX_COL, MAX_ROW-1));
+            assert_eq!(h.neighbor(Facing::A), Hex::new(MAX_COL, MAX_ROW - 1));
             assert!(h.neighbor(Facing::B).is_none());
             assert!(h.neighbor(Facing::C).is_none());
             assert!(h.neighbor(Facing::D).is_none());
             assert!(h.neighbor(Facing::E).is_none());
-            assert_eq!(h.neighbor(Facing::F), Hex::new(MAX_COL-1, MAX_ROW));
+            assert_eq!(h.neighbor(Facing::F), Hex::new(MAX_COL - 1, MAX_ROW));
+        } else {
+            assert!(false)
         }
-        else { assert!(false) }
     }
 
     #[test]
@@ -234,53 +242,105 @@ mod tests {
         if let Some(h) = Hex::new(1, 1) {
             assert_eq!(0, h.distance_to(&h));
 
-            if let Some(h2) = Hex::new(2, 1) { assert_eq!(1, h.distance_to(&h2)) }
-            else { assert!(false) }
+            if let Some(h2) = Hex::new(2, 1) {
+                assert_eq!(1, h.distance_to(&h2))
+            } else {
+                assert!(false)
+            }
 
-            if let Some(h2) = Hex::new(1, 2) { assert_eq!(1, h.distance_to(&h2)) }
-            else { assert!(false) }
+            if let Some(h2) = Hex::new(1, 2) {
+                assert_eq!(1, h.distance_to(&h2))
+            } else {
+                assert!(false)
+            }
 
-            if let Some(h2) = Hex::new(1, 10) { assert_eq!(9, h.distance_to(&h2)) }
-            else { assert!(false) }
+            if let Some(h2) = Hex::new(1, 10) {
+                assert_eq!(9, h.distance_to(&h2))
+            } else {
+                assert!(false)
+            }
 
-            if let Some(h2) = Hex::new(10, 1) { assert_eq!(9, h.distance_to(&h2)) }
-            else { assert!(false) }
+            if let Some(h2) = Hex::new(10, 1) {
+                assert_eq!(9, h.distance_to(&h2))
+            } else {
+                assert!(false)
+            }
+        } else {
+            assert!(false)
         }
-        else { assert!(false) }
     }
 
     #[test]
     fn bearing_to_sanity() {
         if let Some(h) = Hex::new(40, 2) {
-            if let Some(h2) = Hex::new(40, 1) { assert_eq!(BearingTo::A, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(41, 1) { assert_eq!(BearingTo::AOrB, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(41, 2) { assert_eq!(BearingTo::B, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(42, 2) { assert_eq!(BearingTo::BOrC, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(41, 3) { assert_eq!(BearingTo::C, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(41, 4) { assert_eq!(BearingTo::COrD, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(40, 3) { assert_eq!(BearingTo::D, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(39, 4) { assert_eq!(BearingTo::DOrE, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(39, 3) { assert_eq!(BearingTo::E, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(38, 2) { assert_eq!(BearingTo::EOrF, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(39, 2) { assert_eq!(BearingTo::F, h.bearing_to(&h2)) }
-            else { assert!(false) }
-            if let Some(h2) = Hex::new(39, 1) { assert_eq!(BearingTo::FOrA, h.bearing_to(&h2)) }
-            else { assert!(false) }
+            if let Some(h2) = Hex::new(40, 1) {
+                assert_eq!(BearingTo::A, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(41, 1) {
+                assert_eq!(BearingTo::AOrB, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(41, 2) {
+                assert_eq!(BearingTo::B, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(42, 2) {
+                assert_eq!(BearingTo::BOrC, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(41, 3) {
+                assert_eq!(BearingTo::C, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(41, 4) {
+                assert_eq!(BearingTo::COrD, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(40, 3) {
+                assert_eq!(BearingTo::D, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(39, 4) {
+                assert_eq!(BearingTo::DOrE, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(39, 3) {
+                assert_eq!(BearingTo::E, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(38, 2) {
+                assert_eq!(BearingTo::EOrF, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(39, 2) {
+                assert_eq!(BearingTo::F, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+            if let Some(h2) = Hex::new(39, 1) {
+                assert_eq!(BearingTo::FOrA, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
 
-
-            if let Some(h2) = Hex::new(39, 7) { assert_eq!(BearingTo::D, h.bearing_to(&h2)) }
-            else { assert!(false) }
+            if let Some(h2) = Hex::new(39, 7) {
+                assert_eq!(BearingTo::D, h.bearing_to(&h2))
+            } else {
+                assert!(false)
+            }
+        } else {
+            assert!(false)
         }
-        else { assert!(false) }
     }
 }

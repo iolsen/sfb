@@ -51,8 +51,7 @@ impl ggez::event::EventHandler for State {
         graphics::clear(ctx, graphics::BLACK);
         graphics::draw(ctx, &self.map_mesh, graphics::DrawParam::default())?;
 
-        let draw_param = graphics::DrawParam::new()
-            .scale(self.ship.scale());
+        let draw_param = graphics::DrawParam::new().scale(self.ship.scale());
         graphics::draw(ctx, self.ship.image(), draw_param)?;
 
         graphics::present(ctx)?;

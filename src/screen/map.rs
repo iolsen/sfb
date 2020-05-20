@@ -1,5 +1,5 @@
-use ggez::nalgebra::{Point2, Vector2};
 use ggez::graphics::{DrawMode, Mesh, MeshBuilder, WHITE};
+use ggez::nalgebra::{Point2, Vector2};
 use ggez::{Context, GameResult};
 
 pub struct MapState {
