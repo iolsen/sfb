@@ -1,6 +1,7 @@
 // https://www.redblobgames.com/grids/hexagons
 // The game map uses offset coordinates in an "odd-q" layout.
 
+use ggez::nalgebra::Point2;
 use std::fmt;
 
 /* The hex facing printed at the bottom left of the map.
@@ -19,6 +20,19 @@ pub enum Facing {
     D,
     E,
     F,
+}
+
+impl Facing {
+    pub fn to_angle(&self) -> f32 {
+        match self {
+            Facing::A => 0_f32.to_radians(),
+            Facing::B => 60_f32.to_radians(),
+            Facing::C => 120_f32.to_radians(),
+            Facing::D => 180_f32.to_radians(),
+            Facing::E => 240_f32.to_radians(),
+            Facing::F => 300_f32.to_radians(),
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -132,6 +146,13 @@ impl Hex {
         }
     }
 
+    pub fn to_screen(&self, hex_edge: f32) -> Point2<f32> {
+        let hex_height = hex_edge * 3_f32.sqrt();
+        let x = hex_edge * 3.0 / 2.0 * self.col as f32 + hex_edge;
+        let y = hex_height * (self.row as f32 + 0.5 * (self.col & 1) as f32) + 0.5 * hex_height;
+        Point2::new(x, y)
+    }
+
     fn angle_to(&self, other: &Hex) -> i16 {
         let self_center = self.center_coords();
         let other_center = other.center_coords();
@@ -209,13 +230,13 @@ mod tests {
         let h_oob = Hex::new(-1, -1);
         match h_oob {
             Some(_) => assert!(false),
-            None => assert!(true)
+            None => assert!(true),
         }
 
         let h_oob = Hex::new(60, 30);
         match h_oob {
             Some(_) => assert!(false),
-            None => assert!(true)
+            None => assert!(true),
         }
     }
 

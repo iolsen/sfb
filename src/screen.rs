@@ -1,12 +1,15 @@
-mod map;
+pub mod map;
 
-use super::ship::*;
+use crate::hex::{Facing, Hex};
+use crate::ship::{Position, Ship};
 use ggez::conf::{WindowMode, WindowSetup};
 use ggez::*;
+use map::MapState;
 use std::env;
 use std::path;
 
-const WINDOW_HEIGHT: f32 = 800.0;
+const WINDOW_HEIGHT: f32 = 800.0; // Laptop
+// const WINDOW_HEIGHT: f32 = 1300.0; // Desktop
 
 pub fn run() -> GameResult<()> {
     let resource_dir = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
@@ -28,22 +31,24 @@ pub fn run() -> GameResult<()> {
         .build()?;
 
     let map_mesh = map::build_mesh(ctx, &map_state)?;
-    let ship = Ship::new(ctx, map_state.hex_height);
-    let state = &mut State {
-        map_mesh: map_mesh,
-        ship: ship,
+    let ship = Ship::new(ctx, Position { hex: Hex::new(30, 15).unwrap(), facing: Facing::D });
+    let state = &mut GameState {
+        map_state,
+        map_mesh,
+        ship,
     };
 
     event::run(ctx, event_loop, state)
 }
 
-struct State {
+struct GameState {
+    map_state: MapState,
     map_mesh: graphics::Mesh,
     ship: Ship,
 }
 
-impl ggez::event::EventHandler for State {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
+impl ggez::event::EventHandler for GameState {
+    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         Ok(())
     }
 
@@ -51,8 +56,7 @@ impl ggez::event::EventHandler for State {
         graphics::clear(ctx, graphics::BLACK);
         graphics::draw(ctx, &self.map_mesh, graphics::DrawParam::default())?;
 
-        let draw_param = graphics::DrawParam::new().scale(self.ship.scale());
-        graphics::draw(ctx, self.ship.image(), draw_param)?;
+        self.ship.draw(ctx, &self.map_state)?;
 
         graphics::present(ctx)?;
         Ok(())

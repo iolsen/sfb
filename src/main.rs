@@ -1,3 +1,4 @@
+mod hex;
 mod screen;
 mod ship;
 
