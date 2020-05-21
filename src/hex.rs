@@ -86,6 +86,19 @@ impl Hex {
         })
     }
 
+    pub fn from_label(label: &str) -> Option<Hex> {
+        let number: i16 = label.parse().unwrap();
+        let mut col = (number / 100) as i8;
+        if col > 0 {
+            col -= 1;
+        }
+        let mut row = (number % 100) as i8;
+        if row > 0 {
+            row -= 1;
+        }
+        Hex::new(col, row)
+    }
+
     pub fn number(&self) -> i16 {
         (self.col as i16 + 1) * 100 + (self.row as i16 + 1)
     }
@@ -195,13 +208,13 @@ mod tests {
 
         let h_oob = Hex::new(-1, -1);
         match h_oob {
-            Some(h) => assert!(false),
+            Some(_) => assert!(false),
             None => assert!(true)
         }
 
         let h_oob = Hex::new(60, 30);
         match h_oob {
-            Some(h) => assert!(false),
+            Some(_) => assert!(false),
             None => assert!(true)
         }
     }
@@ -215,6 +228,21 @@ mod tests {
         }
 
         let h6030 = Hex::new(59, 29);
+        match h6030 {
+            Some(h) => assert_eq!(h.number(), 6030),
+            None => assert!(false),
+        }
+    }
+
+    #[test]
+    fn from_label() {
+        let h0101 = Hex::from_label("0101");
+        match h0101 {
+            Some(h) => assert_eq!(h.number(), 101),
+            None => assert!(false),
+        }
+
+        let h6030 = Hex::from_label("6030");
         match h6030 {
             Some(h) => assert_eq!(h.number(), 6030),
             None => assert!(false),
