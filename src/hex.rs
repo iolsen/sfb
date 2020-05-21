@@ -1,5 +1,5 @@
 // https://www.redblobgames.com/grids/hexagons
-// The game map uses offset coordinates in an "even-q" layout.
+// The game map uses offset coordinates in an "odd-q" layout.
 
 use std::fmt;
 
@@ -37,14 +37,14 @@ pub enum BearingTo {
     FOrA,
 }
 
-const MIN_COL: i8 = 1;
-const MAX_COL: i8 = 60;
-const MIN_ROW: i8 = 1;
-const MAX_ROW: i8 = 30;
+const MIN_COL: i8 = 0;
+const MAX_COL: i8 = 59;
+const MIN_ROW: i8 = 0;
+const MAX_ROW: i8 = 29;
 
 const DIRECTIONS: [[[i8; 2]; 6]; 2] = [
-    [[0, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]],
     [[0, -1], [1, -1], [1, 0], [0, 1], [-1, 0], [-1, -1]],
+    [[0, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]],
 ];
 
 #[derive(Eq, Debug)]
@@ -87,7 +87,7 @@ impl Hex {
     }
 
     pub fn number(&self) -> i16 {
-        self.col as i16 * 100 + self.row as i16
+        (self.col as i16 + 1) * 100 + (self.row as i16 + 1)
     }
 
     pub fn neighbor(&self, f: Facing) -> Option<Hex> {
@@ -181,28 +181,40 @@ mod tests {
 
     #[test]
     fn number_bounds() {
-        let h0101 = Hex::new(1, 1);
+        let h0101 = Hex::new(0, 0);
         match h0101 {
             Some(h) => assert_eq!("0101", format!("{}", h)),
             None => assert!(false),
         }
 
-        let h6030 = Hex::new(60, 30);
+        let h6030 = Hex::new(59, 29);
         match h6030 {
             Some(h) => assert_eq!("6030", format!("{}", h)),
             None => assert!(false),
+        }
+
+        let h_oob = Hex::new(-1, -1);
+        match h_oob {
+            Some(h) => assert!(false),
+            None => assert!(true)
+        }
+
+        let h_oob = Hex::new(60, 30);
+        match h_oob {
+            Some(h) => assert!(false),
+            None => assert!(true)
         }
     }
 
     #[test]
     fn display_formatter() {
-        let h0101 = Hex::new(1, 1);
+        let h0101 = Hex::new(0, 0);
         match h0101 {
             Some(h) => assert_eq!(h.number(), 101),
             None => assert!(false),
         }
 
-        let h6030 = Hex::new(60, 30);
+        let h6030 = Hex::new(59, 29);
         match h6030 {
             Some(h) => assert_eq!(h.number(), 6030),
             None => assert!(false),
@@ -272,69 +284,69 @@ mod tests {
 
     #[test]
     fn bearing_to_sanity() {
-        if let Some(h) = Hex::new(40, 2) {
-            if let Some(h2) = Hex::new(40, 1) {
+        if let Some(h) = Hex::new(39, 1) {
+            if let Some(h2) = Hex::new(39, 0) {
                 assert_eq!(BearingTo::A, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(41, 1) {
+            if let Some(h2) = Hex::new(40, 0) {
                 assert_eq!(BearingTo::AOrB, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(41, 2) {
+            if let Some(h2) = Hex::new(40, 1) {
                 assert_eq!(BearingTo::B, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(42, 2) {
+            if let Some(h2) = Hex::new(41, 1) {
                 assert_eq!(BearingTo::BOrC, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(41, 3) {
+            if let Some(h2) = Hex::new(40, 2) {
                 assert_eq!(BearingTo::C, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(41, 4) {
+            if let Some(h2) = Hex::new(40, 3) {
                 assert_eq!(BearingTo::COrD, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(40, 3) {
+            if let Some(h2) = Hex::new(39, 2) {
                 assert_eq!(BearingTo::D, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(39, 4) {
+            if let Some(h2) = Hex::new(38, 3) {
                 assert_eq!(BearingTo::DOrE, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(39, 3) {
+            if let Some(h2) = Hex::new(38, 2) {
                 assert_eq!(BearingTo::E, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(38, 2) {
+            if let Some(h2) = Hex::new(37, 1) {
                 assert_eq!(BearingTo::EOrF, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(39, 2) {
+            if let Some(h2) = Hex::new(38, 1) {
                 assert_eq!(BearingTo::F, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
-            if let Some(h2) = Hex::new(39, 1) {
+            if let Some(h2) = Hex::new(38, 0) {
                 assert_eq!(BearingTo::FOrA, h.bearing_to(&h2))
             } else {
                 assert!(false)
             }
 
-            if let Some(h2) = Hex::new(39, 7) {
+            if let Some(h2) = Hex::new(38, 6) {
                 assert_eq!(BearingTo::D, h.bearing_to(&h2))
             } else {
                 assert!(false)
