@@ -1,6 +1,8 @@
 # TODO
 
 - hex
+  - make it 0-based
+  - screen<->hex coords
   - distance: number of hexes in between + 1. same hex is 0.
 - graphics
   - drawing ships
