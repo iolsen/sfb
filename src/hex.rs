@@ -147,61 +147,82 @@ impl Hex {
     }
 
     pub fn to_screen(&self, hex_edge: f32) -> Point2<f32> {
-        let hex_height = hex_edge * 3_f32.sqrt();
+        let hex_height = Hex::height(hex_edge);
         let x = hex_edge * 3.0 / 2.0 * self.col as f32 + hex_edge;
         let y = hex_height * (self.row as f32 + 0.5 * (self.col & 1) as f32) + 0.5 * hex_height;
         Point2::new(x, y)
+    }
+
+    fn height(hex_edge: f32) -> f32 {
+        hex_edge * 3_f32.sqrt()
     }
 
     fn angle_to(&self, other: &Hex) -> i16 {
         let self_center = self.center_coords();
         let other_center = other.center_coords();
 
-        let dx = other_center.0 - self_center.0;
-        let dy = self_center.1 - other_center.1;
+        let dx = other_center.x - self_center.x;
+        let dy = self_center.y - other_center.y;
 
-        if dx == 0_f64 {
-            if dy >= 0_f64 {
+        if dx == 0_f32 {
+            if dy >= 0_f32 {
                 return 90;
             }
             return 270;
         }
         let t = (dy / dx).atan().to_degrees();
-        if t >= 0_f64 {
-            if dx > 0_f64 {
+        if t >= 0_f32 {
+            if dx > 0_f32 {
                 return (t + 0.5) as i16;
             } else {
-                return (t + 180_f64 + 0.5) as i16;
+                return (t + 180_f32 + 0.5) as i16;
             }
         } else {
-            if dx > 0_f64 {
-                return (t + 360_f64 + 0.5) as i16;
+            if dx > 0_f32 {
+                return (t + 360_f32 + 0.5) as i16;
             } else {
-                return (t + 180_f64 + 0.5) as i16;
+                return (t + 180_f32 + 0.5) as i16;
             }
         }
     }
 
-    fn center_coords(&self) -> (f64, f64) {
+    fn center_coords(&self) -> Point2<f32> {
+        let sqrt_3 = 3_f32.sqrt();
+
         let tx = self.number() / 100;
-        let sqrt_3 = 3_f64.sqrt();
-        let x = 1_f64 / (2_f64 * sqrt_3) + (tx - 1) as f64 * (sqrt_3 / 2_f64);
+        let x = 1_f32 / (2_f32 * sqrt_3) + (tx - 1) as f32 * (sqrt_3 / 2_f32);
 
-        let ty = (self.number() % 100) as f64;
-        let y = ty - 0.5 * (tx % 2) as f64;
+        let ty = (self.number() % 100) as f32;
+        let y = ty - 0.5 * (tx % 2) as f32;
 
-        (x, y)
+        Point2::new(x, y)
+    }
+
+    // adapted from https://web.archive.org/web/20161024224848/http://gdreflections.com/2011/02/hexagonal-grid-math.html
+    pub fn from_screen(point: Point2<f32>, hex_edge: f32) -> Option<Hex> {
+        let height = Hex::height(hex_edge);
+        let side = hex_edge * 3.0 / 2.0;
+
+        let ci = (point.x / side).floor() as i8;
+        let cx = point.x - side * ci as f32;
+
+        let ty = point.y - (ci % 2) as f32 * height / 2.0;
+        let cj = (ty / height).floor() as i8;
+        let cy = ty - height * cj as f32;
+
+        if cx > (hex_edge / 2.0 - hex_edge * cy / height).abs() {
+            Hex::new(ci, cj)
+        } else {
+            let minus = if cy < height / 2.0 { 1 } else { 0 };
+            Hex::new(ci - 1, cj + (ci % 2) - minus)
+        }
     }
 
     fn to_cube(&self) -> Cube {
         let x = self.col;
-        let z = self.row - (self.col + (self.col & 1)) / 2;
+        let z = self.row - (self.col - (self.col & 1)) / 2;
         let y = -x - z;
         return Cube { x, y, z };
-    }
-
-    fn _from_cube(cube: Cube) -> Option<Hex> {
-        Hex::new(cube.x, cube.z + (cube.x + (cube.x & 1)) / 2)
     }
 
     fn cubic_distance(a: Cube, b: Cube) -> i8 {
@@ -402,6 +423,22 @@ mod tests {
             }
         } else {
             assert!(false)
+        }
+    }
+
+    #[test]
+    fn screen_to_hex() {
+        let hex_edge = 60.0;
+
+        assert_eq!(None, Hex::from_screen(Point2::new(0.0, 0.0), hex_edge));
+
+        assert_eq!(Hex::new(0, 0), Hex::from_screen(Point2::new(30.0, 30.0), hex_edge));
+
+        for col in MIN_COL..MAX_COL {
+            for row in MIN_ROW..MAX_ROW {
+                let h = Hex::new(col, row).unwrap();
+                assert_eq!(h, Hex::from_screen(h.to_screen(hex_edge), hex_edge).unwrap());
+            }
         }
     }
 }
