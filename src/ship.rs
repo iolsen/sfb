@@ -19,6 +19,7 @@ pub struct Ship {
     pub image: graphics::Image,
 
     pub position: Position,
+    pub speed: u8,
 
     pub shield1_strength: u8,
     pub shield2_strength: u8,
@@ -29,7 +30,7 @@ pub struct Ship {
 }
 
 impl Ship {
-    pub fn new(ctx: &mut Context, position: Position, spec_file : &str) -> Ship {
+    pub fn new(ctx: &mut Context, spec_file : &str, position: Position, speed: u8) -> Ship {
         let spec = ShipSpec::new(spec_file);
         let mut path = path::PathBuf::from(IMAGE_PATH);
         path.push(spec.fx.image);
@@ -38,6 +39,7 @@ impl Ship {
             image,
 
             position,
+            speed,
 
             shield1_strength: spec.ship.shield1,
             shield2_strength: spec.ship.shield2,
