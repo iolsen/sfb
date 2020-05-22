@@ -3,20 +3,22 @@
 - hex
   - screen<->hex coords
   - distance: number of hexes in between + 1. same hex is 0.
+- ship
+  - take damage
+  - firing arcs
 - graphics
-  - drawing ships
-    - move
-    - multiple ship types, non-ships
+  - ship movement
   - make the default window size choice smarter
   - hex grid
     - make it a tile map
     - hex numbers
     - scale better on resize
     - zoom/pan
+- UI
   - imgui-rs PoC
-- other
-  - organize and clean up main.rs
-  - separate stuff into crates such that you could have a server between players
+  - energy allocation
+  - move and rotate commands
+  - firing
 
 # Resources
 
