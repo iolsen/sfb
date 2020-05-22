@@ -1,8 +1,13 @@
 use crate::hex::{Facing, Hex};
+use crate::screen::Actor;
 use crate::screen::map::MapState;
+use crate::ship_spec::*;
 use ggez::graphics;
 use ggez::nalgebra::{Point2, Vector2};
 use ggez::{Context, GameResult};
+use std::path;
+
+const IMAGE_PATH: &str = "/gfx/ships";
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct Position {
@@ -11,23 +16,25 @@ pub struct Position {
 }
 
 pub struct Ship {
-    image: graphics::Image,
-    position: Position,
-
-    _private: (),
+    pub image: graphics::Image,
+    pub position: Position,
 }
 
 impl Ship {
-    pub fn new(ctx: &mut Context, position: Position) -> Ship {
-        let image = graphics::Image::new(ctx, "/gfx/ships/heavycruiser_enterprise.png").unwrap();
+    pub fn new(ctx: &mut Context, position: Position, spec_file : &str) -> Ship {
+        let spec = ShipSpec::new(spec_file);
+        let mut path = path::PathBuf::from(IMAGE_PATH);
+        path.push(spec.fx.image);
+        let image = graphics::Image::new(ctx, path).unwrap();
         Ship {
             image,
             position,
-            _private: (),
         }
     }
+}
 
-    pub fn draw(&self, ctx: &mut Context, map_state: &MapState) -> GameResult<()> {
+impl Actor for Ship {
+    fn draw(&self, ctx: &mut Context, map_state: &MapState) -> GameResult<()> {
         let screen = self.position.hex.to_screen(map_state.hex_edge);
         let scale = (map_state.hex_height - 4.0) / self.image.height() as f32;
         let draw_param = graphics::DrawParam::new()

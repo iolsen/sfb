@@ -1,0 +1,11 @@
+# Federation Heavy Cruiser
+[fx]
+image = "klingon/d7.png"
+
+[ship]
+shield_1 = 30
+shield_2 = 22
+shield_3 = 15
+shield_4 = 13
+shield_5 = 20
+shield_6 = 22

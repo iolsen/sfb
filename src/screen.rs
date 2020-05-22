@@ -9,7 +9,18 @@ use std::env;
 use std::path;
 
 const WINDOW_HEIGHT: f32 = 800.0; // Laptop
-// const WINDOW_HEIGHT: f32 = 1300.0; // Desktop
+//const WINDOW_HEIGHT: f32 = 1300.0; // Desktop
+
+struct GameState {
+    map_state: MapState,
+    map_mesh: graphics::Mesh,
+    actors: Vec<Box<dyn Actor>>,
+}
+
+// A thing that can be drawn on the map.
+pub trait Actor {
+    fn draw(&self, ctx: &mut Context, map_state: &MapState) -> GameResult<()>;
+}
 
 pub fn run() -> GameResult<()> {
     let resource_dir = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
@@ -31,20 +42,22 @@ pub fn run() -> GameResult<()> {
         .build()?;
 
     let map_mesh = map::build_mesh(ctx, &map_state)?;
-    let ship = Ship::new(ctx, Position { hex: Hex::new(30, 15).unwrap(), facing: Facing::D });
+    let ca: Box<dyn Actor> = Box::new(
+        Ship::new(ctx,
+                  Position { hex: Hex::new(6, 29).unwrap(), facing: Facing::A },
+                  "federation/ca.toml"));
+    let d7: Box<dyn Actor> = Box::new(
+        Ship::new(ctx,
+                  Position { hex: Hex::new(41, 2).unwrap(), facing: Facing::E },
+                  "klingon/d7.toml"));
+    let actors = vec![ca, d7];
     let state = &mut GameState {
         map_state,
         map_mesh,
-        ship,
+        actors,
     };
 
     event::run(ctx, event_loop, state)
-}
-
-struct GameState {
-    map_state: MapState,
-    map_mesh: graphics::Mesh,
-    ship: Ship,
 }
 
 impl ggez::event::EventHandler for GameState {
@@ -56,7 +69,9 @@ impl ggez::event::EventHandler for GameState {
         graphics::clear(ctx, graphics::BLACK);
         graphics::draw(ctx, &self.map_mesh, graphics::DrawParam::default())?;
 
-        self.ship.draw(ctx, &self.map_state)?;
+        for actor in self.actors.iter() {
+            actor.draw(ctx, &self.map_state)?;
+        }
 
         graphics::present(ctx)?;
         Ok(())
