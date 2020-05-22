@@ -44,16 +44,24 @@ pub fn run() -> GameResult<()> {
     let map_mesh = map::build_mesh(ctx, &map_state)?;
 
     // "The Duel"
-    let ca: Box<dyn Actor> = Box::new(
-        Ship::new(ctx,
-                  "federation/ca.toml",
-                  Position { hex: Hex::new(6, 29).unwrap(), facing: Facing::A },
-                  15));
-    let d7: Box<dyn Actor> = Box::new(
-        Ship::new(ctx,
-                  "klingon/d7.toml",
-                  Position { hex: Hex::new(41, 2).unwrap(), facing: Facing::E },
-                  15));
+    let ca: Box<dyn Actor> = Box::new(Ship::new(
+        ctx,
+        "federation/ca.toml",
+        Position {
+            hex: Hex::new(6, 29).unwrap(),
+            facing: Facing::A,
+        },
+        15,
+    ));
+    let d7: Box<dyn Actor> = Box::new(Ship::new(
+        ctx,
+        "klingon/d7.toml",
+        Position {
+            hex: Hex::new(41, 2).unwrap(),
+            facing: Facing::E,
+        },
+        15,
+    ));
     let actors = vec![ca, d7];
 
     let state = &mut GameState {

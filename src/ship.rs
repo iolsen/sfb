@@ -1,6 +1,6 @@
 use crate::hex::{Facing, Hex};
-use crate::screen::Actor;
 use crate::screen::map::MapState;
+use crate::screen::Actor;
 use crate::ship_spec::*;
 use ggez::graphics;
 use ggez::nalgebra::{Point2, Vector2};
@@ -30,7 +30,7 @@ pub struct Ship {
 }
 
 impl Ship {
-    pub fn new(ctx: &mut Context, spec_file : &str, position: Position, speed: u8) -> Ship {
+    pub fn new(ctx: &mut Context, spec_file: &str, position: Position, speed: u8) -> Ship {
         let spec = ShipSpec::new(spec_file);
         let mut path = path::PathBuf::from(IMAGE_PATH);
         path.push(spec.fx.image);
