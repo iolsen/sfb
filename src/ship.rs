@@ -17,7 +17,15 @@ pub struct Position {
 
 pub struct Ship {
     pub image: graphics::Image,
+
     pub position: Position,
+
+    pub shield1_strength: u8,
+    pub shield2_strength: u8,
+    pub shield3_strength: u8,
+    pub shield4_strength: u8,
+    pub shield5_strength: u8,
+    pub shield6_strength: u8,
 }
 
 impl Ship {
@@ -28,7 +36,15 @@ impl Ship {
         let image = graphics::Image::new(ctx, path).unwrap();
         Ship {
             image,
+
             position,
+
+            shield1_strength: spec.ship.shield1,
+            shield2_strength: spec.ship.shield2,
+            shield3_strength: spec.ship.shield3,
+            shield4_strength: spec.ship.shield4,
+            shield5_strength: spec.ship.shield5,
+            shield6_strength: spec.ship.shield6,
         }
     }
 }

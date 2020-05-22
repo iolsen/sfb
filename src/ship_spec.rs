@@ -18,12 +18,12 @@ pub struct Fx {
 
 #[derive(Deserialize)]
 pub struct Ship {
-    pub shield_1: i16,
-    pub shield_2: i16,
-    pub shield_3: i16,
-    pub shield_4: i16,
-    pub shield_5: i16,
-    pub shield_6: i16,
+    pub shield1: u8,
+    pub shield2: u8,
+    pub shield3: u8,
+    pub shield4: u8,
+    pub shield5: u8,
+    pub shield6: u8,
 }
 
 impl ShipSpec {

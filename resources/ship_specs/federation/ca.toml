@@ -3,9 +3,9 @@
 image = "federation/ca-cc.png"
 
 [ship]
-shield_1 = 30
-shield_2 = 24
-shield_3 = 20
-shield_4 = 20
-shield_5 = 20
-shield_6 = 24
+shield1 = 30
+shield2 = 24
+shield3 = 20
+shield4 = 20
+shield5 = 20
+shield6 = 24
