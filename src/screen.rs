@@ -39,15 +39,6 @@ pub fn run() -> GameResult<()> {
     };
     let map_state = map::init(WINDOW_HEIGHT);
 
-    let hidpi_factor: f32;
-    {
-        // Create a dummy window so we can get monitor scaling information
-        let cb = ggez::ContextBuilder::new("", "");
-        let (_ctx, events_loop) = &mut cb.build()?;
-        hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor() as f32;
-        println!("main hidpi_factor = {}", hidpi_factor);
-    }
-
     let (ref mut ctx, ref mut event_loop) = ContextBuilder::new("sfbv1", "ian_olsen")
         .add_resource_path(resource_dir)
         .window_setup(WindowSetup::default().title("Star Fleet Battles Volume 1"))
@@ -57,6 +48,11 @@ pub fn run() -> GameResult<()> {
                 .resizable(false),
         )
         .build()?;
+
+    // Seems to not work. Should be 2.0 on retina, 1.0 on external.
+    // let hidpi_factor = event_loop.get_primary_monitor().get_hidpi_factor() as f32;
+    let hidpi_factor = 2.0;
+    println!("hidpi_factor = {}", hidpi_factor);
 
     let map_mesh = map::build_mesh(ctx, &map_state)?;
 
