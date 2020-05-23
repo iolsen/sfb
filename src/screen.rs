@@ -1,12 +1,12 @@
-pub mod map;
 mod imgui_wrapper;
+pub mod map;
 
 use crate::hex::{Facing, Hex};
 use crate::ship::{Position, Ship};
 use ggez::conf::{WindowMode, WindowSetup};
-use ggez::*;
-use ggez::event::{MouseButton, KeyCode, KeyMods};
+use ggez::event::{KeyCode, KeyMods, MouseButton};
 use ggez::nalgebra::Point2;
+use ggez::*;
 use imgui_wrapper::ImGuiWrapper;
 use map::MapState;
 use std::env;
@@ -133,21 +133,29 @@ impl ggez::event::EventHandler for GameState {
         self.mouse_down = false;
         let p = Point2::new(x, y);
         let hex = Hex::from_screen(p, self.map_state.hex_edge);
-        println!("Mouse button releaseed: {:?}, in hex {:?}", button, hex);
+        println!("Mouse button released: {:?}, in hex {:?}", button, hex);
     }
 
     fn key_down_event(
         &mut self,
-        _ctx: &mut Context,
+        ctx: &mut Context,
         keycode: KeyCode,
-        _keymods: KeyMods,
+        keymods: KeyMods,
         _repeat: bool,
     ) {
-        println!("Key down: {:?}", keycode);
+        if keymods == input::keyboard::KeyMods::empty() {
+            println!("Key down: {:?}", keycode);
+        } else {
+            println!("Key down: {:?}-{:?}", keymods, keycode);
+        }
         match keycode {
             KeyCode::P => {
-                println!("yo");
                 self.imgui_wrapper.open_popup();
+            }
+            KeyCode::Q => {
+                if input::keyboard::is_mod_active(ctx, input::keyboard::KeyMods::LOGO) {
+                    event::quit(ctx)
+                }
             }
             _ => (),
         }

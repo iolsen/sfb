@@ -87,9 +87,9 @@ impl ImGuiWrapper {
                 ui.separator();
                 let mouse_pos = ui.io().mouse_pos;
                 ui.text(format!(
-                        "Mouse Position: ({:.1},{:.1})",
-                        mouse_pos[0], mouse_pos[1]
-                        ));
+                    "Mouse Position: ({:.1},{:.1})",
+                    mouse_pos[0], mouse_pos[1]
+                ));
             });
 
         ui.popup_modal(im_str!("modal")).build(|| {
@@ -107,19 +107,19 @@ impl ImGuiWrapper {
         // Render
         let (factory, _, encoder, _, render_target) = graphics::gfx_objects(ctx);
         let draw_data = ui.render();
-        self
-            .renderer
+        self.renderer
             .render(
                 &mut *factory,
                 encoder,
                 &mut RenderTargetView::new(render_target.clone()),
                 draw_data,
-                )
+            )
             .unwrap();
     }
 
     fn update_mouse(&mut self) {
-        self.imgui.io_mut().mouse_pos = [self.mouse_state.pos.0 as f32, self.mouse_state.pos.1 as f32];
+        self.imgui.io_mut().mouse_pos =
+            [self.mouse_state.pos.0 as f32, self.mouse_state.pos.1 as f32];
 
         self.imgui.io_mut().mouse_down = [
             self.mouse_state.pressed.0,

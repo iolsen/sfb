@@ -432,12 +432,18 @@ mod tests {
 
         assert_eq!(None, Hex::from_screen(Point2::new(0.0, 0.0), hex_edge));
 
-        assert_eq!(Hex::new(0, 0), Hex::from_screen(Point2::new(30.0, 30.0), hex_edge));
+        assert_eq!(
+            Hex::new(0, 0),
+            Hex::from_screen(Point2::new(30.0, 30.0), hex_edge)
+        );
 
         for col in MIN_COL..MAX_COL {
             for row in MIN_ROW..MAX_ROW {
                 let h = Hex::new(col, row).unwrap();
-                assert_eq!(h, Hex::from_screen(h.to_screen(hex_edge), hex_edge).unwrap());
+                assert_eq!(
+                    h,
+                    Hex::from_screen(h.to_screen(hex_edge), hex_edge).unwrap()
+                );
             }
         }
     }
