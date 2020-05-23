@@ -1,7 +1,6 @@
 # TODO
 
 - hex
-  - screen<->hex coords
   - distance: number of hexes in between + 1. same hex is 0.
 - ship
   - take damage
@@ -15,6 +14,7 @@
     - scale better on resize
     - zoom/pan
 - UI
+  - mouse input
   - imgui-rs PoC
   - energy allocation
   - move and rotate commands
