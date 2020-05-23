@@ -14,8 +14,6 @@
     - scale better on resize
     - zoom/pan
 - UI
-  - mouse input
-  - imgui-rs PoC
   - energy allocation
   - move and rotate commands
   - firing
@@ -36,4 +34,4 @@
 
 ## Other
 
-`rusty-tags vi`
+`ctags -r --exclude="target/*"`
