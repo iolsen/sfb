@@ -12,7 +12,7 @@ use std::fmt;
  *  E   C
  *    D
  */
-#[derive(PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Facing {
     A,
     B,
@@ -23,14 +23,42 @@ pub enum Facing {
 }
 
 impl Facing {
-    pub fn to_angle(&self) -> f32 {
+    pub fn to_degrees(&self) -> u16 {
+        use Facing::*;
         match self {
-            Facing::A => 0_f32.to_radians(),
-            Facing::B => 60_f32.to_radians(),
-            Facing::C => 120_f32.to_radians(),
-            Facing::D => 180_f32.to_radians(),
-            Facing::E => 240_f32.to_radians(),
-            Facing::F => 300_f32.to_radians(),
+            A => 0,
+            B => 60,
+            C => 120,
+            D => 180,
+            E => 240,
+            F => 300,
+        }
+    }
+    pub fn to_angle(&self) -> f32 {
+        (self.to_degrees() as f32).to_radians()
+    }
+
+    pub fn turn_left(&self) -> Facing {
+        use Facing::*;
+        match self {
+            A => F,
+            B => A,
+            C => B,
+            D => C,
+            E => D,
+            F => E,
+        }
+    }
+
+    pub fn turn_right(&self) -> Facing {
+        use Facing::*;
+        match *self {
+            A => B,
+            B => C,
+            C => D,
+            D => E,
+            E => F,
+            F => A,
         }
     }
 }
@@ -61,7 +89,7 @@ const DIRECTIONS: [[[i8; 2]; 6]; 2] = [
     [[0, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]],
 ];
 
-#[derive(Eq, Debug)]
+#[derive(Copy, Clone, Eq, Debug)]
 pub struct Hex {
     pub col: i8,
     pub row: i8,

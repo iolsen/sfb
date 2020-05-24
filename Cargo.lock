@@ -1875,6 +1875,7 @@ dependencies = [
 name = "sfb"
 version = "0.1.0"
 dependencies = [
+ "approx",
  "gfx_core",
  "gfx_device_gl",
  "ggez",

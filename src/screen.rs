@@ -12,8 +12,8 @@ use map::MapState;
 use std::env;
 use std::path;
 
-//const WINDOW_HEIGHT: f32 = 800.0; // Laptop
-const WINDOW_HEIGHT: f32 = 1300.0; // Desktop
+const WINDOW_HEIGHT: f32 = 800.0; // Laptop
+//const WINDOW_HEIGHT: f32 = 1300.0; // Desktop
 
 struct GameState {
     imgui_wrapper: ImGuiWrapper,
@@ -21,13 +21,15 @@ struct GameState {
     mouse_down: bool,
     map_state: MapState,
     map_mesh: graphics::Mesh,
-    actors: Vec<Box<dyn Actor>>,
+    ships: Vec<Box<Ship>>,
+    // actors: Vec<Box<dyn Actor>>,
 }
 
 // A thing that can be drawn on the map.
-pub trait Actor {
-    fn draw(&self, ctx: &mut Context, map_state: &MapState) -> GameResult<()>;
-}
+//pub trait Actor {
+//    fn draw(&mut self, ctx: &mut Context, map_state: &MapState) -> GameResult<()>;
+//    fn move_to(&mut self, new_position: Position);
+//}
 
 pub fn run() -> GameResult<()> {
     let resource_dir = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
@@ -57,7 +59,7 @@ pub fn run() -> GameResult<()> {
     let map_mesh = map::build_mesh(ctx, &map_state)?;
 
     // "The Duel"
-    let ca: Box<dyn Actor> = Box::new(Ship::new(
+    let ca: Box<Ship> = Box::new(Ship::new(
         ctx,
         "federation/ca.toml",
         Position {
@@ -66,7 +68,7 @@ pub fn run() -> GameResult<()> {
         },
         15,
     ));
-    let d7: Box<dyn Actor> = Box::new(Ship::new(
+    let d7: Box<Ship> = Box::new(Ship::new(
         ctx,
         "klingon/d7.toml",
         Position {
@@ -75,7 +77,7 @@ pub fn run() -> GameResult<()> {
         },
         15,
     ));
-    let actors = vec![ca, d7];
+    let ships = vec![ca, d7];
 
     let state = &mut GameState {
         imgui_wrapper: ImGuiWrapper::new(ctx),
@@ -83,7 +85,7 @@ pub fn run() -> GameResult<()> {
         mouse_down: false,
         map_state,
         map_mesh,
-        actors,
+        ships,
     };
 
     event::run(ctx, event_loop, state)
@@ -98,8 +100,8 @@ impl ggez::event::EventHandler for GameState {
         graphics::clear(ctx, graphics::BLACK);
         graphics::draw(ctx, &self.map_mesh, graphics::DrawParam::default())?;
 
-        for actor in self.actors.iter() {
-            actor.draw(ctx, &self.map_state)?;
+        for ship in self.ships.iter_mut() {
+            ship.draw(ctx, &self.map_state)?;
         }
 
         self.imgui_wrapper.render(ctx, self.hidpi_factor);
@@ -145,12 +147,39 @@ impl ggez::event::EventHandler for GameState {
             println!("Key down: {:?}-{:?}", keymods, keycode);
         }
         match keycode {
+            KeyCode::E => {
+                let mut ca = &mut self.ships[0];
+                let pos = Position {
+                    facing: ca.position.facing.turn_right(),
+                    hex: ca.position.hex,
+                };
+                ca.move_to(pos);
+            }
             KeyCode::P => {
                 self.imgui_wrapper.open_popup();
             }
             KeyCode::Q => {
                 if input::keyboard::is_mod_active(ctx, input::keyboard::KeyMods::LOGO) {
-                    event::quit(ctx)
+                    println!("cmd-q: quitting");
+                    event::quit(ctx);
+                } else {
+                    let mut ca = &mut self.ships[0];
+                    let pos = Position {
+                        facing: ca.position.facing.turn_left(),
+                        hex: ca.position.hex,
+                    };
+                    ca.move_to(pos);
+                }
+            }
+            KeyCode::W => {
+                let mut ca = &mut self.ships[0];
+                let dest = ca.position.hex.neighbor(ca.position.facing);
+                if dest.is_some() {
+                    let pos = Position {
+                        facing: ca.position.facing,
+                        hex: dest.unwrap(),
+                    };
+                    ca.move_to(pos);
                 }
             }
             _ => (),

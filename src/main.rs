@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate approx;
+
 mod hex;
 mod screen;
 mod ship;

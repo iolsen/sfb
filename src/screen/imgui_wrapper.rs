@@ -51,7 +51,7 @@ impl ImGuiWrapper {
         };
 
         // Renderer
-        let mut renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
+        let renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
 
         // Create instace
         Self {
@@ -139,10 +139,6 @@ impl ImGuiWrapper {
 
     pub fn update_mouse_down(&mut self, pressed: (bool, bool, bool)) {
         self.mouse_state.pressed = pressed;
-
-        if pressed.0 {
-            self.show_popup = false;
-        }
     }
 
     pub fn open_popup(&mut self) {
