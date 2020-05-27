@@ -12,7 +12,6 @@
     - hex numbers
     - scale better on resize
     - zoom/pan
-  - figure out how to actually detect dpi factor
 - UI
   - energy allocation
   - move and rotate commands
