@@ -1,14 +1,9 @@
+use crate::screen::main_menu;
 use ggez::graphics;
 use ggez::Context;
-
-// use gfx_core::factory::Factory;
-// use gfx_core::{format, texture};
 use gfx_core::{handle::RenderTargetView, memory::Typed};
-use gfx_device_gl;
-
 use imgui::*;
 use imgui_gfx_renderer::*;
-
 use std::time::Instant;
 
 #[derive(Copy, Clone, PartialEq, Debug, Default)]
@@ -79,6 +74,8 @@ impl ImGuiWrapper {
         self.imgui.io_mut().delta_time = delta_s;
 
         let ui = self.imgui.frame();
+
+        main_menu::show(&ui);
 
         Window::new(im_str!("Star Fleet Battles Volume 1"))
             .size([300.0, 110.0], Condition::FirstUseEver)

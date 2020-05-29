@@ -1,4 +1,5 @@
 mod imgui_wrapper;
+pub mod main_menu;
 pub mod map;
 
 use crate::hex::{Facing, Hex};
