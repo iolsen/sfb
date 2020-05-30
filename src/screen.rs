@@ -13,8 +13,9 @@ use map::MapState;
 use std::env;
 use std::path;
 
-const WINDOW_HEIGHT: f32 = 800.0; // Laptop
-//const WINDOW_HEIGHT: f32 = 1300.0; // Desktop
+pub const MENU_HEIGHT: f32 = 20.0;
+pub const WINDOW_HEIGHT: f32 = MENU_HEIGHT + 800.0; // Laptop
+//const WINDOW_HEIGHT: f32 = MENU_HEIGHT + 1300.0; // Desktop
 
 struct GameState {
     imgui_wrapper: ImGuiWrapper,
@@ -40,14 +41,14 @@ pub fn run() -> GameResult<()> {
     } else {
         path::PathBuf::from("./resources")
     };
-    let map_state = map::init(WINDOW_HEIGHT);
+    let map_state = map::init(Point2::new(0.0, MENU_HEIGHT), WINDOW_HEIGHT - MENU_HEIGHT);
 
     let (ref mut ctx, ref mut event_loop) = ContextBuilder::new("sfbv1", "ian_olsen")
         .add_resource_path(resource_dir)
         .window_setup(WindowSetup::default().title("Star Fleet Battles Volume 1"))
         .window_mode(
             WindowMode::default()
-                .dimensions(map_state.width, map_state.height)
+                .dimensions(map_state.width, WINDOW_HEIGHT)
                 .resizable(false),
         )
         .build()?;
@@ -91,7 +92,7 @@ pub fn run() -> GameResult<()> {
 }
 
 impl ggez::event::EventHandler for GameState {
-    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
         Ok(())
     }
 
@@ -121,7 +122,7 @@ impl ggez::event::EventHandler for GameState {
         ));
         self.mouse_down = true;
         let p = Point2::new(x, y);
-        let hex = Hex::from_screen(p, self.map_state.hex_edge);
+        let hex = Hex::from_screen(p, &self.map_state);
         println!("Mouse button pressed: {:?}, in hex {:?}", button, hex);
     }
 
@@ -129,7 +130,7 @@ impl ggez::event::EventHandler for GameState {
         self.imgui_wrapper.update_mouse_down((false, false, false));
         self.mouse_down = false;
         let p = Point2::new(x, y);
-        let hex = Hex::from_screen(p, self.map_state.hex_edge);
+        let hex = Hex::from_screen(p, &self.map_state);
         println!("Mouse button released: {:?}, in hex {:?}", button, hex);
     }
 
@@ -147,12 +148,12 @@ impl ggez::event::EventHandler for GameState {
         }
         match keycode {
             KeyCode::E => {
-                let mut ca = &mut self.ships[0];
+                let d7 = &mut self.ships[1];
                 let pos = Position {
-                    facing: ca.position.facing.turn_right(),
-                    hex: ca.position.hex,
+                    facing: d7.position.facing.turn_right(),
+                    hex: d7.position.hex,
                 };
-                ca.move_to(pos);
+                d7.move_to(pos);
             }
             KeyCode::P => {
                 self.imgui_wrapper.open_popup();
@@ -162,23 +163,23 @@ impl ggez::event::EventHandler for GameState {
                     println!("cmd-q: quitting");
                     event::quit(ctx);
                 } else {
-                    let mut ca = &mut self.ships[0];
+                    let d7 = &mut self.ships[1];
                     let pos = Position {
-                        facing: ca.position.facing.turn_left(),
-                        hex: ca.position.hex,
+                        facing: d7.position.facing.turn_left(),
+                        hex: d7.position.hex,
                     };
-                    ca.move_to(pos);
+                    d7.move_to(pos);
                 }
             }
             KeyCode::W => {
-                let mut ca = &mut self.ships[0];
-                let dest = ca.position.hex.neighbor(ca.position.facing);
+                let d7 = &mut self.ships[1];
+                let dest = d7.position.hex.neighbor(d7.position.facing);
                 if dest.is_some() {
                     let pos = Position {
-                        facing: ca.position.facing,
+                        facing: d7.position.facing,
                         hex: dest.unwrap(),
                     };
-                    ca.move_to(pos);
+                    d7.move_to(pos);
                 }
             }
             _ => (),

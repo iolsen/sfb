@@ -74,7 +74,6 @@ impl ImGuiWrapper {
         self.imgui.io_mut().delta_time = delta_s;
 
         let ui = self.imgui.frame();
-
         main_menu::show(&ui);
 
         Window::new(im_str!("Star Fleet Battles Volume 1"))

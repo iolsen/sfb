@@ -1,6 +1,7 @@
 // https://www.redblobgames.com/grids/hexagons
 // The game map uses offset coordinates in an "odd-q" layout.
 
+use crate::screen::map::MapState;
 use ggez::nalgebra::Point2;
 use std::fmt;
 
@@ -174,15 +175,10 @@ impl Hex {
         }
     }
 
-    pub fn to_screen(&self, hex_edge: f32) -> Point2<f32> {
-        let hex_height = Hex::height(hex_edge);
-        let x = hex_edge * 3.0 / 2.0 * self.col as f32 + hex_edge;
-        let y = hex_height * (self.row as f32 + 0.5 * (self.col & 1) as f32) + 0.5 * hex_height;
+    pub fn to_screen(&self, map_state: &MapState) -> Point2<f32> {
+        let x = map_state.hex_edge * 3.0 / 2.0 * self.col as f32 + map_state.start_point.x;
+        let y = map_state.hex_height * (self.row as f32 + 0.5 * (self.col & 1) as f32) + map_state.start_point.y;
         Point2::new(x, y)
-    }
-
-    fn height(hex_edge: f32) -> f32 {
-        hex_edge * 3_f32.sqrt()
     }
 
     fn angle_to(&self, other: &Hex) -> i16 {
@@ -227,21 +223,21 @@ impl Hex {
     }
 
     // adapted from https://web.archive.org/web/20161024224848/http://gdreflections.com/2011/02/hexagonal-grid-math.html
-    pub fn from_screen(point: Point2<f32>, hex_edge: f32) -> Option<Hex> {
-        let height = Hex::height(hex_edge);
-        let side = hex_edge * 3.0 / 2.0;
+    pub fn from_screen(point: Point2<f32>, map_state: &MapState) -> Option<Hex> {
+        let translated_point = Point2::new(point.x - map_state.origin.x, point.y - map_state.origin.y);
+        let side = map_state.hex_edge * 3.0 / 2.0;
 
-        let ci = (point.x / side).floor() as i8;
-        let cx = point.x - side * ci as f32;
+        let ci = (translated_point.x / side).floor() as i8;
+        let cx = translated_point.x - side * ci as f32;
 
-        let ty = point.y - (ci % 2) as f32 * height / 2.0;
-        let cj = (ty / height).floor() as i8;
-        let cy = ty - height * cj as f32;
+        let ty = translated_point.y - (ci % 2) as f32 * map_state.hex_height / 2.0;
+        let cj = (ty / map_state.hex_height).floor() as i8;
+        let cy = ty - map_state.hex_height * cj as f32;
 
-        if cx > (hex_edge / 2.0 - hex_edge * cy / height).abs() {
+        if cx > (map_state.hex_edge / 2.0 - map_state.hex_edge * cy / map_state.hex_height).abs() {
             Hex::new(ci, cj)
         } else {
-            let minus = if cy < height / 2.0 { 1 } else { 0 };
+            let minus = if cy < map_state.hex_height / 2.0 { 1 } else { 0 };
             Hex::new(ci - 1, cj + (ci % 2) - minus)
         }
     }
@@ -456,13 +452,16 @@ mod tests {
 
     #[test]
     fn screen_to_hex() {
-        let hex_edge = 60.0;
+        use crate::screen::map;
+        use crate::screen::{MENU_HEIGHT, WINDOW_HEIGHT};
 
-        assert_eq!(None, Hex::from_screen(Point2::new(0.0, 0.0), hex_edge));
+        let map_state = map::init(Point2::new(0.0, MENU_HEIGHT), WINDOW_HEIGHT - MENU_HEIGHT);
+
+        assert_eq!(None, Hex::from_screen(Point2::new(0.0, MENU_HEIGHT), &map_state));
 
         assert_eq!(
             Hex::new(0, 0),
-            Hex::from_screen(Point2::new(30.0, 30.0), hex_edge)
+            Hex::from_screen(Point2::new(map_state.origin.x + map_state.hex_edge / 2.0, map_state.origin.y + map_state.hex_edge / 2.0), &map_state)
         );
 
         for col in MIN_COL..MAX_COL {
@@ -470,7 +469,7 @@ mod tests {
                 let h = Hex::new(col, row).unwrap();
                 assert_eq!(
                     h,
-                    Hex::from_screen(h.to_screen(hex_edge), hex_edge).unwrap()
+                    Hex::from_screen(h.to_screen(&map_state), &map_state).unwrap()
                 );
             }
         }

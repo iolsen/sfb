@@ -64,27 +64,27 @@ impl Ship {
         }
     }
 
-    fn set_next_draw_dest(&mut self, hex_edge: f32) {
-        let started_at = self.position.hex.to_screen(hex_edge);
+    fn set_next_draw_dest(&mut self, map_state: &MapState) {
+        let started_at = self.position.hex.to_screen(map_state);
         let moving_to = self.moving_to.as_ref().unwrap();
 
-        let end_dest = moving_to.hex.to_screen(hex_edge);
+        let end_dest = moving_to.hex.to_screen(map_state);
         let dx = (end_dest.x - started_at.x) / 60.0;
         let dy = (end_dest.y - started_at.y) / 60.0;
         let v = Vector2::new(dx, dy);
 
         self.draw_dest.replace(self.draw_dest.unwrap() + v);
         let new_dest = self.draw_dest.unwrap();
-        println!("Current: {:?}  Dest: {:?}", new_dest, end_dest);
+        // println!("Current: {:?}  Dest: {:?}", new_dest, end_dest);
         if ulps_eq!(new_dest, end_dest, epsilon = f32::EPSILON, max_ulps = 10_000) {
             self.done_moving();
         }
     }
 
-    fn set_next_draw_rotation(&mut self, dest_facing: Facing) {
+    fn set_next_draw_rotation(&mut self) {
         let current_degrees = self.draw_rotation.to_degrees();
-        let dest_degrees = dest_facing.to_degrees();
-        println!("Current facing: {:?} Dest facing: {:?}", current_degrees, dest_degrees);
+        let dest_degrees = self.moving_to.as_ref().unwrap().facing.to_degrees();
+        // println!("Current facing: {:?} Dest facing: {:?}", current_degrees, dest_degrees);
 
         // Surely there's a more elegant way to do this, but when looking at the current and
         // destination facing angles, this mess handles turning the shorter distance when crossing
@@ -103,21 +103,21 @@ impl Ship {
             self.draw_rotation += dr.to_radians();
         }
         if (current_degrees - (dest_degrees as f32)).abs() < 3.0 {
-            self.draw_rotation = dest_facing.to_angle();
-            self.position.facing = dest_facing;
+            self.draw_rotation = (dest_degrees as f32).to_radians();
+            self.position.facing = self.moving_to.as_ref().unwrap().facing;
         }
     }
 
     pub fn draw(&mut self, ctx: &mut Context, map_state: &MapState) -> GameResult<()> {
         if self.draw_dest.is_none() {
-            self.draw_dest = Some(self.position.hex.to_screen(map_state.hex_edge));
+            self.draw_dest = Some(self.position.hex.to_screen(map_state));
             self.draw_rotation = self.position.facing.to_angle();
         } else if self.moving_to.is_some() {
             let moving_to = self.moving_to.as_ref().unwrap();
             if moving_to.facing != self.position.facing {
-                self.set_next_draw_rotation(moving_to.facing);
+                self.set_next_draw_rotation();
             } else {
-                self.set_next_draw_dest(map_state.hex_edge);
+                self.set_next_draw_dest(map_state);
             }
         }
 

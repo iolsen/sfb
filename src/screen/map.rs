@@ -3,24 +3,26 @@ use ggez::nalgebra::{Point2, Vector2};
 use ggez::{Context, GameResult};
 
 pub struct MapState {
+    pub origin: Point2<f32>,
     pub width: f32,
     pub height: f32,
-    start_point: Point2<f32>,
+    pub start_point: Point2<f32>,
     pub hex_height: f32,
     pub hex_edge: f32,
     vector: Vector2<f32>,
 }
 
-pub fn init(height: f32) -> MapState {
+pub fn init(origin: Point2<f32>, height: f32) -> MapState {
     let hex_height = height / 30.5;
     let hex_edge = hex_height / 3_f32.sqrt();
-    let start_point = Point2::new(hex_edge, hex_height * 0.5);
+    let start_point = Point2::new(hex_edge + origin.x, hex_height * 0.5 + origin.y);
     let vector = Vector2::new(hex_edge * 2.0 * 0.75, hex_height * 0.5);
 
     let hex_width = 2.0 * hex_edge;
     let width = 0.75 * hex_width * 60.0 + (hex_width * 0.25);
 
     MapState {
+        origin,
         width,
         height,
         start_point,
