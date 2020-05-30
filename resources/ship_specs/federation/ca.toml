@@ -2,10 +2,22 @@
 [fx]
 image = "federation/ca-cc.png"
 
-[ship]
+[defenses]
 shield1 = 30
 shield2 = 24
 shield3 = 20
 shield4 = 20
 shield5 = 20
 shield6 = 24
+armor = 0
+
+[power]
+left_warp = 15
+center_warp = 0
+right_warp = 15
+impulse = 4
+battery = 4
+
+[ship]
+forward_hull = 12
+aft_hull = 4

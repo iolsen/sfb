@@ -8,6 +8,8 @@ const SPECS_PATH: &str = "./resources/ship_specs";
 #[derive(Deserialize)]
 pub struct ShipSpec {
     pub fx: Fx,
+    pub defenses: Defenses,
+    pub power: Power,
     pub ship: Ship,
 }
 
@@ -17,13 +19,29 @@ pub struct Fx {
 }
 
 #[derive(Deserialize)]
-pub struct Ship {
+pub struct Defenses {
     pub shield1: u8,
     pub shield2: u8,
     pub shield3: u8,
     pub shield4: u8,
     pub shield5: u8,
     pub shield6: u8,
+    pub armor: u8,
+}
+
+#[derive(Deserialize)]
+pub struct Power {
+    pub left_warp: u8,
+    pub center_warp: u8,
+    pub right_warp: u8,
+    pub impulse: u8,
+    pub battery: u8,
+}
+
+#[derive(Deserialize)]
+pub struct Ship {
+    pub forward_hull: u8,
+    pub aft_hull: u8,
 }
 
 impl ShipSpec {
@@ -38,7 +56,9 @@ impl ShipSpec {
         let mut s = String::new();
         file.read_to_string(&mut s).unwrap();
 
-        let spec: ShipSpec = toml::from_str(&s).unwrap();
-        spec
+        match toml::from_str(&s) {
+            Err(err) => panic!("Invalid ship spec '{}': {}", spec_file, err),
+            Ok(s) => s,
+        }
     }
 }

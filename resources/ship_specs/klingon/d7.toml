@@ -2,10 +2,22 @@
 [fx]
 image = "klingon/d7.png"
 
-[ship]
+[defenses]
 shield1 = 30
 shield2 = 22
 shield3 = 15
 shield4 = 13
 shield5 = 20
 shield6 = 22
+armor = 0
+
+[power]
+left_warp = 15
+center_warp = 0
+right_warp = 15
+impulse = 4
+battery = 4
+
+[ship]
+forward_hull = 4
+aft_hull = 7
