@@ -69,8 +69,8 @@ impl Ship {
         let moving_to = self.moving_to.as_ref().unwrap();
 
         let end_dest = moving_to.hex.to_screen(map_state);
-        let dx = (end_dest.x - started_at.x) / 60.0;
-        let dy = (end_dest.y - started_at.y) / 60.0;
+        let dx = (end_dest.x - started_at.x) / 45.0;
+        let dy = (end_dest.y - started_at.y) / 45.0;
         let v = Vector2::new(dx, dy);
 
         self.draw_dest.replace(self.draw_dest.unwrap() + v);
