@@ -32,21 +32,21 @@ pub fn init(origin: Point2<f32>, height: f32) -> MapState {
     }
 }
 
-pub fn build_mesh(ctx: &mut Context, sizes: &MapState) -> GameResult<Mesh> {
+pub fn build_mesh(ctx: &mut Context, map_state: &MapState) -> GameResult<Mesh> {
     let builder = &mut MeshBuilder::new();
 
     for col in 0..60 {
-        let x = sizes.start_point.x + sizes.vector.x * col as f32;
+        let x = map_state.start_point.x + map_state.vector.x * col as f32;
         for row in 0..30 {
             let y = if col % 2 == 0 {
                 // even row
-                sizes.start_point.y + sizes.hex_height * row as f32
+                map_state.start_point.y + map_state.hex_height * row as f32
             } else {
                 // odd row
-                sizes.start_point.y + sizes.vector.y + sizes.hex_height * row as f32
+                map_state.start_point.y + map_state.vector.y + map_state.hex_height * row as f32
             };
             let center = Point2::new(x, y);
-            let points = hex_points(center, sizes.hex_edge);
+            let points = hex_points(center, map_state.hex_edge);
             builder.polygon(DrawMode::stroke(1.0), &points, WHITE)?;
         }
     }
