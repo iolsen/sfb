@@ -20,7 +20,7 @@ pub struct Ship {
     pub position: Position,
     pub moving_to: Option<Position>,
     pub speed: u8,
-    pub spec: ShipSpec,
+    spec: ShipSpec,
 
     draw_dest: Option<Point2<f32>>,
     draw_rotation: f32,
@@ -42,6 +42,32 @@ impl Ship {
             draw_dest: None,
             draw_rotation: 0.0,
         }
+    }
+
+    pub fn invalidate(&mut self) {
+      self.draw_dest = None;
+    }
+
+    pub fn draw(&mut self, ctx: &mut Context, map_state: &MapState) -> GameResult<()> {
+        if self.draw_dest.is_none() {
+            self.draw_dest = Some(self.position.hex.to_screen(map_state));
+            self.draw_rotation = self.position.facing.to_angle();
+        } else if self.moving_to.is_some() {
+            let moving_to = self.moving_to.as_ref().unwrap();
+            if moving_to.facing != self.position.facing {
+                self.set_next_draw_rotation();
+            } else {
+                self.set_next_draw_dest(map_state);
+            }
+        }
+
+        let scale = (map_state.hex_height - 4.0) / self.image.height() as f32;
+        let draw_param = graphics::DrawParam::new()
+            .dest(self.draw_dest.unwrap())
+            .rotation(self.draw_rotation)
+            .offset(Point2::new(0.5, 0.5)) // render from center
+            .scale(Vector2::new(scale, scale));
+        graphics::draw(ctx, &self.image, draw_param)
     }
 
     pub fn rotate_to(&mut self, new_facing: Facing) {
@@ -108,25 +134,4 @@ impl Ship {
         }
     }
 
-    pub fn draw(&mut self, ctx: &mut Context, map_state: &MapState) -> GameResult<()> {
-        if self.draw_dest.is_none() {
-            self.draw_dest = Some(self.position.hex.to_screen(map_state));
-            self.draw_rotation = self.position.facing.to_angle();
-        } else if self.moving_to.is_some() {
-            let moving_to = self.moving_to.as_ref().unwrap();
-            if moving_to.facing != self.position.facing {
-                self.set_next_draw_rotation();
-            } else {
-                self.set_next_draw_dest(map_state);
-            }
-        }
-
-        let scale = (map_state.hex_height - 4.0) / self.image.height() as f32;
-        let draw_param = graphics::DrawParam::new()
-            .dest(self.draw_dest.unwrap())
-            .rotation(self.draw_rotation)
-            .offset(Point2::new(0.5, 0.5)) // render from center
-            .scale(Vector2::new(scale, scale));
-        graphics::draw(ctx, &self.image, draw_param)
-    }
 }

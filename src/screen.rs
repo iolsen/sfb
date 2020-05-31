@@ -49,7 +49,7 @@ pub fn run() -> GameResult<()> {
         .window_mode(
             WindowMode::default()
                 .dimensions(map_state.width, WINDOW_HEIGHT)
-                .resizable(false),
+                .resizable(true),
         )
         .build()?;
 
@@ -183,6 +183,18 @@ impl ggez::event::EventHandler for GameState {
                 }
             }
             _ => (),
+        }
+    }
+
+    fn resize_event(&mut self, ctx: &mut Context, _width: f32, height: f32) {
+        // TODO DRY this when startup in run() is better.
+        self.hidpi_factor = ggez::graphics::window(&ctx).get_hidpi_factor() as f32;
+        println!("hidpi_factor = {}", self.hidpi_factor);
+        self.map_state = map::init(Point2::new(0.0, MENU_HEIGHT), height - MENU_HEIGHT);
+        self.map_mesh = map::build_mesh(ctx, &self.map_state).unwrap();
+
+        for ship in self.ships.iter_mut() {
+            ship.invalidate();
         }
     }
 }

@@ -178,7 +178,9 @@ impl Hex {
     pub fn to_screen(&self, map_state: &MapState) -> Point2<f32> {
         let x = map_state.hex_edge * 3.0 / 2.0 * self.col as f32 + map_state.start_point.x;
         let y = map_state.hex_height * (self.row as f32 + 0.5 * (self.col & 1) as f32) + map_state.start_point.y;
-        Point2::new(x, y)
+        let p = Point2::new(x, y);
+        // println!("{:?} is at screen coordinate {:?}", self, p);
+        p
     }
 
     fn angle_to(&self, other: &Hex) -> i16 {
