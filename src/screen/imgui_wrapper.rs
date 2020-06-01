@@ -48,7 +48,7 @@ impl ImGuiWrapper {
         // Renderer
         let renderer = Renderer::init(&mut imgui, &mut *factory, shaders).unwrap();
 
-        // Create instace
+        // Create instance
         Self {
             imgui,
             renderer,
@@ -59,10 +59,8 @@ impl ImGuiWrapper {
     }
 
     pub fn render(&mut self, ctx: &mut Context, hidpi_factor: f32) {
-        // Update mouse
         self.update_mouse();
 
-        // Create new frame
         let now = Instant::now();
         let delta = now - self.last_frame;
         let delta_s = delta.as_secs() as f32 + delta.subsec_nanos() as f32 / 1_000_000_000.0;
@@ -100,7 +98,6 @@ impl ImGuiWrapper {
             self.show_popup = false;
         }
 
-        // Render
         let (factory, _, encoder, _, render_target) = graphics::gfx_objects(ctx);
         let draw_data = ui.render();
         self.renderer

@@ -3,10 +3,10 @@ use ggez::nalgebra::{Point2, Vector2};
 use ggez::{Context, GameResult};
 
 pub struct MapState {
-    pub origin: Point2<f32>,
+    pub origin: Point2<f32>, // The screen coordinate of the map's upper left corner
     pub width: f32,
     pub height: f32,
-    pub start_point: Point2<f32>,
+    pub start_point: Point2<f32>, // The screen coordinate for the center of hex 0,0
     pub hex_height: f32,
     pub hex_edge: f32,
     vector: Vector2<f32>,

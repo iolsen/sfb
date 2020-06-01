@@ -22,6 +22,7 @@ pub struct Ship {
     pub speed: u8,
     spec: ShipSpec,
 
+    scale: Option<f32>,
     draw_dest: Option<Point2<f32>>,
     draw_rotation: f32,
 }
@@ -39,16 +40,22 @@ impl Ship {
             speed,
             spec,
 
+            scale: None,
             draw_dest: None,
             draw_rotation: 0.0,
         }
     }
 
     pub fn invalidate(&mut self) {
+      self.scale = None;
       self.draw_dest = None;
     }
 
     pub fn draw(&mut self, ctx: &mut Context, map_state: &MapState) -> GameResult<()> {
+        if self.scale.is_none() {
+          self.scale = Some((map_state.hex_height - 4.0) / self.image.height() as f32);
+        }
+
         if self.draw_dest.is_none() {
             self.draw_dest = Some(self.position.hex.to_screen(map_state));
             self.draw_rotation = self.position.facing.to_angle();
@@ -61,12 +68,11 @@ impl Ship {
             }
         }
 
-        let scale = (map_state.hex_height - 4.0) / self.image.height() as f32;
         let draw_param = graphics::DrawParam::new()
             .dest(self.draw_dest.unwrap())
             .rotation(self.draw_rotation)
             .offset(Point2::new(0.5, 0.5)) // render from center
-            .scale(Vector2::new(scale, scale));
+            .scale(Vector2::new(self.scale.unwrap(), self.scale.unwrap()));
         graphics::draw(ctx, &self.image, draw_param)
     }
 
@@ -133,5 +139,4 @@ impl Ship {
             self.position.facing = self.moving_to.as_ref().unwrap().facing;
         }
     }
-
 }
