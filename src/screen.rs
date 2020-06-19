@@ -1,4 +1,6 @@
 mod imgui_wrapper;
+
+pub mod energy_allocation_window;
 pub mod main_menu;
 pub mod map;
 
@@ -156,7 +158,7 @@ impl ggez::event::EventHandler for GameState {
                 d7.move_to(pos);
             }
             KeyCode::P => {
-                self.imgui_wrapper.open_popup();
+                self.imgui_wrapper.open_energy_allocation_window(&mut self.ships[0]);
             }
             KeyCode::Q => {
                 if input::keyboard::is_mod_active(ctx, input::keyboard::KeyMods::LOGO) {

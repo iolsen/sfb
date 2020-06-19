@@ -15,12 +15,21 @@ pub struct Position {
     pub facing: Facing,
 }
 
+#[derive(Default, Debug)]
+pub struct EnergyAllocation {
+    pub warp_available: u8,
+    pub impulse_available: u8,
+    pub reactor_available: u8,
+}
+
 pub struct Ship {
     pub image: graphics::Image,
     pub position: Position,
     pub moving_to: Option<Position>,
     pub speed: u8,
+
     spec: ShipSpec,
+    energy_alloc: Option<EnergyAllocation>,
 
     scale: Option<f32>,
     draw_dest: Option<Point2<f32>>,
@@ -38,7 +47,9 @@ impl Ship {
             position,
             moving_to: None,
             speed,
+
             spec,
+            energy_alloc: None,
 
             scale: None,
             draw_dest: None,
@@ -75,6 +86,18 @@ impl Ship {
             .scale(Vector2::new(self.scale.unwrap(), self.scale.unwrap()));
         graphics::draw(ctx, &self.image, draw_param)
     }
+
+    pub fn get_energy_allocation(&mut self) -> EnergyAllocation {
+        match self.energy_alloc.take() {
+            Some(e) => e,
+            None => EnergyAllocation::default(),
+        }
+    }
+
+    pub fn set_energy_allocation(&mut self, e: EnergyAllocation) {
+        self.energy_alloc.replace(e);
+    }
+
 
     pub fn rotate_to(&mut self, new_facing: Facing) {
         println!("Changing to facing {:?}", new_facing);

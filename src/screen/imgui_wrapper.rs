@@ -1,4 +1,6 @@
 use crate::screen::main_menu;
+use crate::screen::energy_allocation_window::EnergyAllocationWindow;
+use crate::ship::{EnergyAllocation, Ship};
 use ggez::graphics;
 use ggez::Context;
 use gfx_core::{handle::RenderTargetView, memory::Typed};
@@ -16,9 +18,11 @@ struct MouseState {
 pub struct ImGuiWrapper {
     pub imgui: imgui::Context,
     pub renderer: Renderer<gfx_core::format::Rgba8, gfx_device_gl::Resources>,
+
     last_frame: Instant,
     mouse_state: MouseState,
-    show_popup: bool,
+
+    energy_allocation: Option<EnergyAllocation>,
 }
 
 impl ImGuiWrapper {
@@ -54,7 +58,7 @@ impl ImGuiWrapper {
             renderer,
             last_frame: Instant::now(),
             mouse_state: MouseState::default(),
-            show_popup: false,
+            energy_allocation: None,
         }
     }
 
@@ -74,18 +78,6 @@ impl ImGuiWrapper {
         let ui = self.imgui.frame();
         main_menu::show(&ui);
 
-        Window::new(im_str!("Star Fleet Battles Volume 1"))
-            .size([300.0, 110.0], Condition::FirstUseEver)
-            .build(&ui, || {
-                ui.text(im_str!("This is a window!"));
-                ui.separator();
-                let mouse_pos = ui.io().mouse_pos;
-                ui.text(format!(
-                    "Mouse Position: ({:.1},{:.1})",
-                    mouse_pos[0], mouse_pos[1]
-                ));
-            });
-
         ui.popup_modal(im_str!("modal")).build(|| {
             ui.text("This is a modal!");
             if ui.button(im_str!("OK"), [0.0, 0.0]) {
@@ -93,9 +85,8 @@ impl ImGuiWrapper {
             }
         });
 
-        if self.show_popup {
-            ui.open_popup(im_str!("modal"));
-            self.show_popup = false;
+        if self.energy_allocation.is_some() {
+            EnergyAllocationWindow::new(self.energy_allocation.as_ref().unwrap()).show(&ui);
         }
 
         let (factory, _, encoder, _, render_target) = graphics::gfx_objects(ctx);
@@ -134,7 +125,7 @@ impl ImGuiWrapper {
         self.mouse_state.pressed = pressed;
     }
 
-    pub fn open_popup(&mut self) {
-        self.show_popup = true;
+    pub fn open_energy_allocation_window(&mut self, ship: &mut Ship) {
+        self.energy_allocation = Some(ship.get_energy_allocation());
     }
 }

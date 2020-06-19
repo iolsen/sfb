@@ -8,6 +8,12 @@ pub fn show<'a>(ui: &Ui<'a>) {
                 .build(ui);
             menu.end(ui);
         }
+        if let Some(menu) = ui.begin_menu(im_str!("View"), true) {
+            MenuItem::new(im_str!("Game Window"))
+                .enabled(false)
+                .build(ui);
+            menu.end(ui);
+        }
         menu_bar.end(ui);
     }
 }
